@@ -11,3 +11,6 @@ $PYTHONPATH -m pip install OWSLib
 
 # geopandas 
 $PYTHONPATH -m pip install geopandas
+
+# rtree 
+$PYTHONPATH -m pip install rtree

@@ -8,3 +8,7 @@ The data sources are the following:
 - basic sanitation, DTM, Orthos -> https://geobases.es.gov.br/ (The SDI from the Espirito Santo State Government)
 - Building and road structure   -> https://www.openstreetmap.org/
 
+
+This repository was tested on Ubuntu 18, bot it may work on windows too
+
+To get started, please run the "setup.py" file
