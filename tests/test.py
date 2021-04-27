@@ -4,7 +4,7 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 import time
 start_time = time.time()
 
-from lib import constants
+from library import constants
 from owslib.wfs import WebFeatureService
 
 #geobases wfs url

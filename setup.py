@@ -1,5 +1,5 @@
 # this import suffice to create the initial folders
-import lib.constants
+import library.constants
 import os, sys
 
 # adding the libpath to PYTHONPATH
