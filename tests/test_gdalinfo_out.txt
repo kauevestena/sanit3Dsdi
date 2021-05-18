@@ -1,0 +1,486 @@
+Driver: HFA/Erdas Imagine Images (.img)
+Files: /vsicurl/https://geobases.static.es.gov.br/public/MAP_ES_2012_2015/MDE/38_790.img
+       /vsicurl/https://geobases.static.es.gov.br/public/MAP_ES_2012_2015/MDE/38_790.rrd
+Size is 5001, 5001
+Coordinate System is:
+BOUNDCRS[
+    SOURCECRS[
+        PROJCRS["SIRGAS_2000_UTM_Zone_24S",
+            BASEGEOGCRS["SIRGAS_2000",
+                DATUM["Sistema de Referencia Geocentrico para las AmericaS 2000",
+                    ELLIPSOID["GRS_1980",6378137,298.257222101004,
+                        LENGTHUNIT["metre",1]],
+                    ID["EPSG",6674]],
+                PRIMEM["Greenwich",0,
+                    ANGLEUNIT["degree",0.0174532925199433,
+                        ID["EPSG",9122]]]],
+            CONVERSION["UTM zone 24S",
+                METHOD["Transverse Mercator",
+                    ID["EPSG",9807]],
+                PARAMETER["Latitude of natural origin",0,
+                    ANGLEUNIT["degree",0.0174532925199433],
+                    ID["EPSG",8801]],
+                PARAMETER["Longitude of natural origin",-39,
+                    ANGLEUNIT["degree",0.0174532925199433],
+                    ID["EPSG",8802]],
+                PARAMETER["Scale factor at natural origin",0.9996,
+                    SCALEUNIT["unity",1],
+                    ID["EPSG",8805]],
+                PARAMETER["False easting",500000,
+                    LENGTHUNIT["meters",1],
+                    ID["EPSG",8806]],
+                PARAMETER["False northing",10000000,
+                    LENGTHUNIT["meters",1],
+                    ID["EPSG",8807]],
+                ID["EPSG",17024]],
+            CS[Cartesian,2],
+                AXIS["easting",east,
+                    ORDER[1],
+                    LENGTHUNIT["meters",1]],
+                AXIS["northing",north,
+                    ORDER[2],
+                    LENGTHUNIT["meters",1]]]],
+    TARGETCRS[
+        GEOGCRS["WGS 84",
+            DATUM["World Geodetic System 1984",
+                ELLIPSOID["WGS 84",6378137,298.257223563,
+                    LENGTHUNIT["metre",1]]],
+            PRIMEM["Greenwich",0,
+                ANGLEUNIT["degree",0.0174532925199433]],
+            CS[ellipsoidal,2],
+                AXIS["latitude",north,
+                    ORDER[1],
+                    ANGLEUNIT["degree",0.0174532925199433]],
+                AXIS["longitude",east,
+                    ORDER[2],
+                    ANGLEUNIT["degree",0.0174532925199433]],
+            ID["EPSG",4326]]],
+    ABRIDGEDTRANSFORMATION["Transformation from SIRGAS_2000 to WGS84",
+        METHOD["Position Vector transformation (geog2D domain)",
+            ID["EPSG",9606]],
+        PARAMETER["X-axis translation",0,
+            ID["EPSG",8605]],
+        PARAMETER["Y-axis translation",0,
+            ID["EPSG",8606]],
+        PARAMETER["Z-axis translation",0,
+            ID["EPSG",8607]],
+        PARAMETER["X-axis rotation",0,
+            ID["EPSG",8608]],
+        PARAMETER["Y-axis rotation",0,
+            ID["EPSG",8609]],
+        PARAMETER["Z-axis rotation",0,
+            ID["EPSG",8610]],
+        PARAMETER["Scale difference",1,
+            ID["EPSG",8611]]]]
+Data axis to CRS axis mapping: 1,2
+Origin = (379999.000000000000000,7900001.000000000000000)
+Pixel Size = (2.000000000000000,-2.000000000000000)
+Corner Coordinates:
+Upper Left  (  379999.000, 7900001.000) ( 40d 8'24.07"W, 18d59'20.41"S)
+Lower Left  (  379999.000, 7889999.000) ( 40d 8'26.29"W, 19d 4'45.76"S)
+Upper Right (  390001.000, 7900001.000) ( 40d 2'42.04"W, 18d59'22.42"S)
+Lower Right (  390001.000, 7889999.000) ( 40d 2'44.08"W, 19d 4'47.79"S)
+Center      (  385000.000, 7895000.000) ( 40d 5'34.12"W, 19d 2' 4.12"S)
+Band 1 Block=64x64 Type=UInt16, ColorInterp=Undefined
+  Description = Layer_1
+  Min=8.000 Max=132.000 
+  Minimum=8.000, Maximum=132.000, Mean=75.048, StdDev=17.314
+  Overviews: 1251x1251, 626x626, 313x313, 157x157, 79x79, 40x40
+  Metadata:
+    LAYER_TYPE=athematic
+    STATISTICS_EXCLUDEDVALUES=
+    STATISTICS_HISTOBINVALUES=25|0|25|0|25|75|150|325|500|2700|4925|10125|11800|23775|28700|26800|35000|38200|34075|35625|37975|40925|44525|49075|56275|64200|74600|79425|76300|70750|70650|76450|78325|80025|83850|93375|93375|101875|107025|116800|126425|138200|153250|163750|177575|216850|271125|308800|414525|391900|317875|323250|359100|354800|367275|377775|307925|316300|351050|382100|376225|391750|426325|493775|543025|539200|560525|564650|573250|582475|608125|614825|593075|595275|612050|624250|624475|619700|598600|576925|564375|528225|511175|489600|458425|434750|402950|375325|345450|319775|286975|258375|230300|200450|175650|150475|128050|105325|86925|67125|51825|40850|30100|22200|16975|10225|7425|4725|3625|2350|1100|775|375|300|150|75|75|50|25|50|0|0|0|0|25|
+    STATISTICS_HISTOMAX=132
+    STATISTICS_HISTOMIN=8
+    STATISTICS_HISTONUMBINS=125
+    STATISTICS_MAXIMUM=132
+    STATISTICS_MEAN=75.04811
+    STATISTICS_MEDIAN=77
+    STATISTICS_MINIMUM=8
+    STATISTICS_MODE=84
+    STATISTICS_SKIPFACTORX=5
+    STATISTICS_SKIPFACTORY=5
+    STATISTICS_STDDEV=17.314141538274
+<GDALRasterAttributeTable Row0Min="8" BinSize="1" tableType="athematic">
+  <FieldDefn index="0">
+    <Name>Histogram</Name>
+    <Type>1</Type>
+    <Usage>1</Usage>
+  </FieldDefn>
+  <Row index="0">
+    <F>25</F>
+  </Row>
+  <Row index="1">
+    <F>0</F>
+  </Row>
+  <Row index="2">
+    <F>25</F>
+  </Row>
+  <Row index="3">
+    <F>0</F>
+  </Row>
+  <Row index="4">
+    <F>25</F>
+  </Row>
+  <Row index="5">
+    <F>75</F>
+  </Row>
+  <Row index="6">
+    <F>150</F>
+  </Row>
+  <Row index="7">
+    <F>325</F>
+  </Row>
+  <Row index="8">
+    <F>500</F>
+  </Row>
+  <Row index="9">
+    <F>2700</F>
+  </Row>
+  <Row index="10">
+    <F>4925</F>
+  </Row>
+  <Row index="11">
+    <F>10125</F>
+  </Row>
+  <Row index="12">
+    <F>11800</F>
+  </Row>
+  <Row index="13">
+    <F>23775</F>
+  </Row>
+  <Row index="14">
+    <F>28700</F>
+  </Row>
+  <Row index="15">
+    <F>26800</F>
+  </Row>
+  <Row index="16">
+    <F>35000</F>
+  </Row>
+  <Row index="17">
+    <F>38200</F>
+  </Row>
+  <Row index="18">
+    <F>34075</F>
+  </Row>
+  <Row index="19">
+    <F>35625</F>
+  </Row>
+  <Row index="20">
+    <F>37975</F>
+  </Row>
+  <Row index="21">
+    <F>40925</F>
+  </Row>
+  <Row index="22">
+    <F>44525</F>
+  </Row>
+  <Row index="23">
+    <F>49075</F>
+  </Row>
+  <Row index="24">
+    <F>56275</F>
+  </Row>
+  <Row index="25">
+    <F>64200</F>
+  </Row>
+  <Row index="26">
+    <F>74600</F>
+  </Row>
+  <Row index="27">
+    <F>79425</F>
+  </Row>
+  <Row index="28">
+    <F>76300</F>
+  </Row>
+  <Row index="29">
+    <F>70750</F>
+  </Row>
+  <Row index="30">
+    <F>70650</F>
+  </Row>
+  <Row index="31">
+    <F>76450</F>
+  </Row>
+  <Row index="32">
+    <F>78325</F>
+  </Row>
+  <Row index="33">
+    <F>80025</F>
+  </Row>
+  <Row index="34">
+    <F>83850</F>
+  </Row>
+  <Row index="35">
+    <F>93375</F>
+  </Row>
+  <Row index="36">
+    <F>93375</F>
+  </Row>
+  <Row index="37">
+    <F>101875</F>
+  </Row>
+  <Row index="38">
+    <F>107025</F>
+  </Row>
+  <Row index="39">
+    <F>116800</F>
+  </Row>
+  <Row index="40">
+    <F>126425</F>
+  </Row>
+  <Row index="41">
+    <F>138200</F>
+  </Row>
+  <Row index="42">
+    <F>153250</F>
+  </Row>
+  <Row index="43">
+    <F>163750</F>
+  </Row>
+  <Row index="44">
+    <F>177575</F>
+  </Row>
+  <Row index="45">
+    <F>216850</F>
+  </Row>
+  <Row index="46">
+    <F>271125</F>
+  </Row>
+  <Row index="47">
+    <F>308800</F>
+  </Row>
+  <Row index="48">
+    <F>414525</F>
+  </Row>
+  <Row index="49">
+    <F>391900</F>
+  </Row>
+  <Row index="50">
+    <F>317875</F>
+  </Row>
+  <Row index="51">
+    <F>323250</F>
+  </Row>
+  <Row index="52">
+    <F>359100</F>
+  </Row>
+  <Row index="53">
+    <F>354800</F>
+  </Row>
+  <Row index="54">
+    <F>367275</F>
+  </Row>
+  <Row index="55">
+    <F>377775</F>
+  </Row>
+  <Row index="56">
+    <F>307925</F>
+  </Row>
+  <Row index="57">
+    <F>316300</F>
+  </Row>
+  <Row index="58">
+    <F>351050</F>
+  </Row>
+  <Row index="59">
+    <F>382100</F>
+  </Row>
+  <Row index="60">
+    <F>376225</F>
+  </Row>
+  <Row index="61">
+    <F>391750</F>
+  </Row>
+  <Row index="62">
+    <F>426325</F>
+  </Row>
+  <Row index="63">
+    <F>493775</F>
+  </Row>
+  <Row index="64">
+    <F>543025</F>
+  </Row>
+  <Row index="65">
+    <F>539200</F>
+  </Row>
+  <Row index="66">
+    <F>560525</F>
+  </Row>
+  <Row index="67">
+    <F>564650</F>
+  </Row>
+  <Row index="68">
+    <F>573250</F>
+  </Row>
+  <Row index="69">
+    <F>582475</F>
+  </Row>
+  <Row index="70">
+    <F>608125</F>
+  </Row>
+  <Row index="71">
+    <F>614825</F>
+  </Row>
+  <Row index="72">
+    <F>593075</F>
+  </Row>
+  <Row index="73">
+    <F>595275</F>
+  </Row>
+  <Row index="74">
+    <F>612050</F>
+  </Row>
+  <Row index="75">
+    <F>624250</F>
+  </Row>
+  <Row index="76">
+    <F>624475</F>
+  </Row>
+  <Row index="77">
+    <F>619700</F>
+  </Row>
+  <Row index="78">
+    <F>598600</F>
+  </Row>
+  <Row index="79">
+    <F>576925</F>
+  </Row>
+  <Row index="80">
+    <F>564375</F>
+  </Row>
+  <Row index="81">
+    <F>528225</F>
+  </Row>
+  <Row index="82">
+    <F>511175</F>
+  </Row>
+  <Row index="83">
+    <F>489600</F>
+  </Row>
+  <Row index="84">
+    <F>458425</F>
+  </Row>
+  <Row index="85">
+    <F>434750</F>
+  </Row>
+  <Row index="86">
+    <F>402950</F>
+  </Row>
+  <Row index="87">
+    <F>375325</F>
+  </Row>
+  <Row index="88">
+    <F>345450</F>
+  </Row>
+  <Row index="89">
+    <F>319775</F>
+  </Row>
+  <Row index="90">
+    <F>286975</F>
+  </Row>
+  <Row index="91">
+    <F>258375</F>
+  </Row>
+  <Row index="92">
+    <F>230300</F>
+  </Row>
+  <Row index="93">
+    <F>200450</F>
+  </Row>
+  <Row index="94">
+    <F>175650</F>
+  </Row>
+  <Row index="95">
+    <F>150475</F>
+  </Row>
+  <Row index="96">
+    <F>128050</F>
+  </Row>
+  <Row index="97">
+    <F>105325</F>
+  </Row>
+  <Row index="98">
+    <F>86925</F>
+  </Row>
+  <Row index="99">
+    <F>67125</F>
+  </Row>
+  <Row index="100">
+    <F>51825</F>
+  </Row>
+  <Row index="101">
+    <F>40850</F>
+  </Row>
+  <Row index="102">
+    <F>30100</F>
+  </Row>
+  <Row index="103">
+    <F>22200</F>
+  </Row>
+  <Row index="104">
+    <F>16975</F>
+  </Row>
+  <Row index="105">
+    <F>10225</F>
+  </Row>
+  <Row index="106">
+    <F>7425</F>
+  </Row>
+  <Row index="107">
+    <F>4725</F>
+  </Row>
+  <Row index="108">
+    <F>3625</F>
+  </Row>
+  <Row index="109">
+    <F>2350</F>
+  </Row>
+  <Row index="110">
+    <F>1100</F>
+  </Row>
+  <Row index="111">
+    <F>775</F>
+  </Row>
+  <Row index="112">
+    <F>375</F>
+  </Row>
+  <Row index="113">
+    <F>300</F>
+  </Row>
+  <Row index="114">
+    <F>150</F>
+  </Row>
+  <Row index="115">
+    <F>75</F>
+  </Row>
+  <Row index="116">
+    <F>75</F>
+  </Row>
+  <Row index="117">
+    <F>50</F>
+  </Row>
+  <Row index="118">
+    <F>25</F>
+  </Row>
+  <Row index="119">
+    <F>50</F>
+  </Row>
+  <Row index="120">
+    <F>0</F>
+  </Row>
+  <Row index="121">
+    <F>0</F>
+  </Row>
+  <Row index="122">
+    <F>0</F>
+  </Row>
+  <Row index="123">
+    <F>0</F>
+  </Row>
+  <Row index="124">
+    <F>25</F>
+  </Row>
+</GDALRasterAttributeTable>
+

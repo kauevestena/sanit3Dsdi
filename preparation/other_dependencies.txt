@@ -1,0 +1,12 @@
+GDAL : install qgis and you should be ok
+
+or this sequence:
+
+sudo add-apt-repository ppa:ubuntugis/ppa
+sudo apt-get update
+sudo apt-get install gdal-bin
+
+verify by running:
+ogrinfo --version
+
+full instructions: https://mothergeo-py.readthedocs.io/en/latest/development/how-to/gdal-ubuntu-pkg.html 

@@ -62,6 +62,22 @@ class wfs_data_fetcher:
         # funtion used to store all of the interest layers in dictionary
 
 
+class imagery_fetcher:
+
+    def __init__(self,source_url,source_type = 'txt_list',extension='.tif',imagery_name=''):
+
+        if source_type == 'txt_list':
+            self.link_list = bf.select_entries_with_string(bf.txt_from_url_to_list(source_url),extension)
+
+            self.name = imagery_name
+
+    
+    def retrieve_within_wgs84_bounds(self,boundaries):
+        pass
+
+
+
+
 
 
     
