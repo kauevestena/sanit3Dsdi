@@ -15,3 +15,6 @@ $PYTHONPATH -m pip install geopandas
 # rtree 
 $PYTHONPATH -m pip install rtree
 
+# wget 
+$PYTHONPATH -m pip install wget
+

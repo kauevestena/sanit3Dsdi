@@ -1,11 +1,14 @@
 # warning supŕession 
+from tempfile import TemporaryDirectory
 from warnings import simplefilter
 simplefilter(action='ignore', category=FutureWarning)
 
 import os, requests, hashlib, subprocess, json
 import geopandas as gpd
 from shapely.geometry import box as sh_box
-
+from urllib.parse import urlparse
+from wget import download as wget_download
+from library.constants import temp_files_outdir
 
 def joinToHome(input_path):
     """
@@ -87,5 +90,23 @@ def geodataframe_bounding_box(input_gdf,as_wgs84=True):
     else:
         # to use native CRS
         return sh_box(*input_gdf.total_bounds)
+
+
+
+def download_file_from_url(input_url,outfolder=temp_files_outdir):
+    #thx: https://stackoverflow.com/a/18727481/4436950
+    #thx: https://is.gd/FkH1td 
+    
+    # the url as a path
+    url_path = urlparse(input_url).path
+
+    filename = os.path.basename(url_path)
+
+    outpath = os.path.join(outfolder,filename)
+
+    #with the tailored outpath, we can download the file
+    wget_download(input_url,outpath)
+
+    return filename
 
     

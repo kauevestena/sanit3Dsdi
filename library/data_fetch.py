@@ -5,6 +5,10 @@ from requests import Request as req
 from library import basic_functions as bf
 
 
+
+wgs84_code = "EPSG:4326"
+
+
 class wfs_data_fetcher:
 
     connection = None # the WFS object
@@ -62,7 +66,7 @@ class wfs_data_fetcher:
         #selecting interest layers from layerlist
         layername_list = bf.select_entries_with_string(self.layer_list,selection_keystring)
 
-        curr_dict = layers[category_key]
+        curr_dict = self.layers[category_key]
 
         for layername in layername_list:
             curr_dict[layername] = self.layer_to_gdf(layername)
@@ -74,10 +78,26 @@ class imagery_fetcher:
 
     def __init__(self,source_url,source_type = 'txt_list',extension='.tif',imagery_name=''):
 
+        # TODO : another datasources beyond text list
+
         if source_type == 'txt_list':
+            # select only the entries that are actual images, not auxiliary files
             self.link_list = bf.select_entries_with_string(bf.txt_from_url_to_list(source_url),extension)
 
             self.name = imagery_name
+
+        #else if:
+        #  another possibilities
+
+            #getting boundingboxes from each image
+
+            self.wgs84_boundingboxes = {}
+
+            for url in self.link_list:
+                # TODO : nifty list with the polygons, then build a geodataframe
+                pass
+
+
 
     def retrieve_within_wgs84_bounds(self,boundaries):
         pass
