@@ -1,6 +1,3 @@
-# warning supŕession 
-from warnings import simplefilter
-simplefilter(action='ignore', category=FutureWarning)
 import time
 from owslib.wfs import WebFeatureService
 import geopandas as gpd
@@ -28,12 +25,13 @@ class wfs_data_fetcher:
 
         # parameters to create url_request:
         params = dict(service='WFS', version="1.0.0", request='GetFeature',typeName=layername,outputFormat='json')
-        req_url = req('GET', gb_wfs, params=params).prepare().url
+        req_url = req('GET', self.wfs_url, params=params).prepare().url
 
         #record the hash from the data:
         self.layer_hashes[layername] = bf.get_hash_from_text_in_url(req_url)
 
         return gpd.read_file(req_url)
+
 
     def get_municipalities(self,municipalities_layername,subset_ibge_codes=[],ibge_cod_field='cod_ibge'):
 
@@ -44,7 +42,16 @@ class wfs_data_fetcher:
             mun_gdf = self.layer_to_gdf(municipalities_layername)
             self.municipalities = mun_gdf.loc[mun_gdf[ibge_cod_field].isin(subset_ibge_codes)]
 
+
+        # obtaining the bounding box of the interest area
+
+        self.wgs84_bbox = bf.geodataframe_bounding_box(self.municipalities)
+
+        self.clipping_polygon = self.municipalities.dissolve()
+
+
     def get_layerlist(self):
+
         return list(self.connection.contents)
 
     def dump_layerlist(self,outpath):
@@ -63,6 +70,7 @@ class wfs_data_fetcher:
 
 
 class imagery_fetcher:
+    # a class to fetch imagery from a datasource
 
     def __init__(self,source_url,source_type = 'txt_list',extension='.tif',imagery_name=''):
 
@@ -71,26 +79,5 @@ class imagery_fetcher:
 
             self.name = imagery_name
 
-    
     def retrieve_within_wgs84_bounds(self,boundaries):
         pass
-
-
-
-
-
-
-    
-
-
-
-    
-
-
-
-
-
-    
-
-
-

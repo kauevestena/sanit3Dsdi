@@ -1,4 +1,10 @@
+# warning supŕession 
+from warnings import simplefilter
+simplefilter(action='ignore', category=FutureWarning)
+
 import os, requests, hashlib, subprocess, json
+import geopandas as gpd
+from shapely.geometry import box as sh_box
 
 
 def joinToHome(input_path):
@@ -63,6 +69,23 @@ def  parseGdalinfoJson(inputpath,print_runstring=False,from_www=True,stats=False
     return as_dict
 
 
-
 def txt_from_url_to_list(input_url):
+    '''
+    obtaining a list of lines from a url
+    '''
     return requests.get(input_url).text.splitlines()
+
+
+def geodataframe_bounding_box(input_gdf,as_wgs84=True):
+    '''
+        Bounding box from a geodataframe as a shapely polygon. DEFAULT AS WGS84
+    '''
+
+    if as_wgs84:
+        return sh_box(*input_gdf.to_crs("EPSG:4326").total_bounds)
+
+    else:
+        # to use native CRS
+        return sh_box(*input_gdf.total_bounds)
+
+    
