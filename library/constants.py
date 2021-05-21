@@ -18,7 +18,7 @@ dsm_link_list = "https://geobases.static.es.gov.br/public/MAP_ES_2012_2015/MAP_E
 
 dsm_directory_minio = "https://geobases.static.es.gov.br/minio/public/MAP_ES_2012_2015/MDE/"
 
-
+vitoria_osm_id = 1825817
 
 # municipalityes layer name:
 mun_lyr_name = 'geonode:idaf_limite_municipal_2018_11' 
