@@ -3,7 +3,7 @@ from owslib.wfs import WebFeatureService
 import geopandas as gpd
 from requests import Request as req
 from library import basic_functions as bf
-
+from shapely.geometry import Polygon as sh_polygon
 
 
 wgs84_code = "EPSG:4326"
@@ -89,13 +89,17 @@ class imagery_fetcher:
         #else if:
         #  another possibilities
 
-            #getting boundingboxes from each image
+            #getting boundingboxes from each image, storing in a geodatagrame
 
-            self.wgs84_boundingboxes = {}
+            wgs84_boundingboxes = {}
 
-            for url in self.link_list:
-                # TODO : nifty list with the polygons, then build a geodataframe
-                pass
+            for image_url in self.link_list:
+                json_info = bf.parseGdalinfoJson(image_url)
+
+                self.wgs84_boundingboxes[image_url] = sh_polygon(json_info['wgs84Extent']['coordinates'][0])
+
+
+            self.imagery_bboxes_wgs84 = gpd.GeoDataFrame(wgs84_boundingboxes,crs=wgs84_code)
 
 
 

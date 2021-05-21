@@ -43,6 +43,9 @@ def select_entries_with_string(inputlist,inputstring):
     return [entry for entry in inputlist if inputstring in entry]
 
 def  parseGdalinfoJson(inputpath,print_runstring=False,from_www=True,stats=False,optionals = '',print_outstring=False):
+    '''
+        Parse GDALINFO from a OGR compliant image as json, it can be web-hosted or no.
+    '''
 
     if stats:
         optionals = '-approx_stats'
