@@ -3,7 +3,7 @@ from tempfile import TemporaryDirectory
 from warnings import simplefilter
 simplefilter(action='ignore', category=FutureWarning)
 
-import os, requests, hashlib, subprocess, json
+import os, requests, hashlib, subprocess, json, pickle
 import geopandas as gpd
 from shapely.geometry import box as sh_box
 from urllib.parse import urlparse
@@ -42,13 +42,11 @@ def hash_string(inputstr):
 def select_entries_with_string(inputlist,inputstring):
     return [entry for entry in inputlist if inputstring in entry]
 
-def  parseGdalinfoJson(inputpath,print_runstring=False,from_www=True,stats=False,optionals = '',print_outstring=False):
-    '''
-        Parse GDALINFO from a OGR compliant image as json, it can be web-hosted or no.
-    '''
 
-    if stats:
-        optionals = '-approx_stats'
+def  parseGdalinfoJson(inputpath,print_runstring=False,from_www=True,optionals = '',print_outstring=False):
+    '''
+        Parse GDALINFO from a OGR compliant image as json. The image can be web-hosted or no.
+    '''
 
     url_preffix = ''
 
@@ -58,7 +56,7 @@ def  parseGdalinfoJson(inputpath,print_runstring=False,from_www=True,stats=False
     # if quoted_path:
     #     inputpath = '"'+inputpath+'"'
 
-    runstring = f'gdalinfo "{url_preffix}{inputpath}" -json {optionals}'
+    runstring = f'gdalinfo "{url_preffix}{inputpath}" -json -stats -checksum {optionals}'
 
     if print_runstring:
         print(runstring)
@@ -70,9 +68,7 @@ def  parseGdalinfoJson(inputpath,print_runstring=False,from_www=True,stats=False
     if print_outstring:
         print(as_str)
 
-    as_dict = json.loads(as_str)
-
-    return as_dict
+    return json.loads(as_str)
 
 
 def txt_from_url_to_list(input_url):
@@ -88,6 +84,7 @@ def geodataframe_bounding_box(input_gdf,as_wgs84=True):
     '''
 
     if as_wgs84:
+        # the '*' operator is required as shapely box asks for individual coordinates
         return sh_box(*input_gdf.to_crs("EPSG:4326").total_bounds)
 
     else:
@@ -112,4 +109,13 @@ def download_file_from_url(input_url,outfolder=temp_files_outdir):
 
     return filename
 
+def object_pickling(input_object,filename,outfolder=temp_files_outdir,pickle_protocol=4):
+    '''
+        to store dataFetching classes, mostly for check for updates in remote datasources
+    '''
+
+    outpath = os.path.join(outfolder,filename)
+
+    with open(outpath,'wb') as handle:
+        pickle.dump(input_object,handle,protocol=pickle_protocol)
     

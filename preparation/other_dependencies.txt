@@ -10,3 +10,12 @@ verify by running:
 ogrinfo --version
 
 full instructions: https://mothergeo-py.readthedocs.io/en/latest/development/how-to/gdal-ubuntu-pkg.html 
+
+
+
+
+NPM:
+sudo apt install NPM
+
+osmtogeojson (after installing npm)
+npm install -g osmtogeojson

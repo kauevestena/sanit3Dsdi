@@ -25,6 +25,9 @@ class wfs_data_fetcher:
 
 
     def layer_to_gdf(self,layername):
+        '''
+            transform a vector layer in the wfs datasource to a GeoDataFrame 
+        '''
 
 
         # parameters to create url_request:
@@ -38,6 +41,9 @@ class wfs_data_fetcher:
 
 
     def get_municipalities(self,municipalities_layername,subset_ibge_codes=[],ibge_cod_field='cod_ibge'):
+        '''
+            
+        '''
 
         #select the layer containing the municipalities, a special layer, since it will be used as the cropping (clip) layer
         if not subset_ibge_codes:
@@ -52,6 +58,8 @@ class wfs_data_fetcher:
         self.wgs84_bbox = bf.geodataframe_bounding_box(self.municipalities)
 
         self.clipping_polygon = self.municipalities.dissolve()
+
+        self.clipping_polygon_wgs84 = self.clipping_polygon.to_crs(wgs84_code)
 
 
     def get_layerlist(self):
@@ -76,7 +84,9 @@ class wfs_data_fetcher:
 class imagery_fetcher:
     # a class to fetch imagery from a datasource
 
-    def __init__(self,source_url,source_type = 'txt_list',extension='.tif',imagery_name=''):
+    checksums = {}
+
+    def __init__(self,source_url,source_type = 'txt_list',extension='.tif',imagery_name='DEM'):
 
         # TODO : another datasources beyond text list
 
@@ -86,22 +96,51 @@ class imagery_fetcher:
 
             self.name = imagery_name
 
-        #else if:
-        #  another possibilities
-
             #getting boundingboxes from each image, storing in a geodatagrame
 
-            wgs84_boundingboxes = {}
+            wgs84_boundingboxes = {'url':[],'geometry':[]}
 
             for image_url in self.link_list:
                 json_info = bf.parseGdalinfoJson(image_url)
 
-                self.wgs84_boundingboxes[image_url] = sh_polygon(json_info['wgs84Extent']['coordinates'][0])
+
+                wgs84_boundingboxes['url'].append(image_url)
+
+                wgs84_boundingboxes['geometry'].append(sh_polygon(json_info['wgs84Extent']['coordinates'][0]))
+
+                #the image checksum
+
+                sum = 0
+                for band in json_info['bands']:
+                    sum += int(band['checksum'])
+                
+                self.checksums[image_url] = sum
 
 
             self.imagery_bboxes_wgs84 = gpd.GeoDataFrame(wgs84_boundingboxes,crs=wgs84_code)
 
 
+        #else if:
+        #  another possibilities
 
     def retrieve_within_wgs84_bounds(self,boundaries):
-        pass
+        '''
+            retrieve only the features within the interest area, 
+            
+            boundaries must be a shapely polygon or another GeoDataFrame/GeoSeries (intended to be connected with a 
+            
+            wfs_data_fetcher.clipping_polygon_wgs84 
+
+            to download only interest imagery
+        '''
+     
+        # imagery whose bounding boxes intersects interest areas    
+        intersect_entries = self.imagery_bboxes_wgs84.intersects[boundaries]
+
+        self.interest_entries =  self.imagery_bboxes_wgs84[intersect_entries]
+
+        # finally we will download the imagery
+        for image_url in self.interest_entries["url"]:
+            bf.download_file_from_url(image_url)
+
+
