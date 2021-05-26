@@ -1,4 +1,5 @@
 # warning supŕession 
+import re
 from tempfile import TemporaryDirectory
 from warnings import simplefilter
 simplefilter(action='ignore', category=FutureWarning)
@@ -119,3 +120,80 @@ def object_pickling(input_object,filename,outfolder=temp_files_outdir,pickle_pro
     with open(outpath,'wb') as handle:
         pickle.dump(input_object,handle,protocol=pickle_protocol)
     
+
+def osm_query_string_by_id(interest_area_code,interest_tag="building",node=True,way=True,relation=True,print_querystring=False):
+    '''
+        generates a specific query string for overpass API
+    '''
+
+    node_part = way_part = relation_part = ''
+
+    if node:
+        node_part = f'node["{interest_tag}"](area:{interest_area_code});'
+    if way:
+        way_part = f'way["{interest_tag}"](area:{interest_area_code});'
+    if relation:
+        relation_part = f'relation["{interest_tag}"](area:{interest_area_code});'
+
+    overpass_query = f"""
+    (  
+        {node_part}
+        {way_part}
+        {relation_part}
+    );
+    /*added by auto repair*/
+    (._;>;);
+    /*end of auto repair*/
+    out;
+    """
+
+    if print_querystring:
+        print(overpass_query)
+
+    return overpass_query
+
+def join_to_default_outfolder(filename,outfolder=temp_files_outdir):
+
+    return os.path.join(outfolder,filename)
+
+def delete_filelist_that_exists(filepathlist):
+    for filepath in filepathlist:
+        if os.path.exists(filepath):
+            os.remove(filepath)
+
+
+def get_osm_data(querystring,tempfilesname,print_response=True,delete_temp_files=False):
+    '''
+        get the osmdata and stores in a geodataframe, also generates temporary files
+    '''
+
+    # the requests part:
+    overpass_url = "http://overpass-api.de/api/interpreter" # there are also other options
+    response = requests.get(overpass_url,params={'data':querystring})
+
+    # TODO check the response, beyond terminal printing
+    if print_response:
+        print_response(response)
+
+    # the outpaths for temporary files
+    xmlfilepath = join_to_default_outfolder(tempfilesname+'_osm.xml')
+    geojsonfilepath = join_to_default_outfolder(tempfilesname+'_osm.geojson')
+
+    # the xml file writing part:
+    with open(xmlfilepath,'w+') as handle:
+        handle.write(response.text)
+
+    # the command-line call
+    runstring = f'osmtogeojson "{xmlfilepath}" > "{geojsonfilepath}"'
+
+    out = subprocess.run(runstring,shell=True)
+
+    # reading as a geodataframe
+    as_gdf = gpd.read_file(geojsonfilepath)
+
+    # cleaning up, if wanted
+    if delete_temp_files:
+        delete_filelist_that_exists([xmlfilepath,geojsonfilepath])
+
+    # return only polygons, we have no interest on broken features
+    return as_gdf[as_gdf['geometry'].geom_type == 'Polygon']

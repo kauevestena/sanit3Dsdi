@@ -1,3 +1,4 @@
+from platform import node
 import time
 from owslib.wfs import WebFeatureService
 import geopandas as gpd
@@ -142,5 +143,46 @@ class imagery_fetcher:
         # finally we will download the imagery
         for image_url in self.interest_entries["url"]:
             bf.download_file_from_url(image_url)
+
+
+class osm_fetcher:
+
+    # Constants that must be added to feature id in order to characterize areas in OSM
+    # Generally a municipality is characterized as a relation (and most boundaries are as well)
+    way_constant = 2400000000
+    relation_constant = 3600000000
+
+    layers = {}
+
+    def __init__(self,interest_feature=0,added_constant=False,is_relation = True,bounging_box=None):
+
+        if interest_feature == 0:
+            # TODO make an implementation for a wgs84 bounding box
+            pass
+        else:
+            if added_constant:
+                self.interest_feature = interest_feature
+            else:
+                if is_relation:
+                    self.interest_feature = int(interest_feature) + self.relation_constant
+                else:
+                    self.interest_feature = int(interest_feature) + self.way_constant
+
+    # to get data use methods below:
+    def get_buildings(self):
+        query_string = bf.osm_query_string_by_id(self.interest_feature,node=False)
+
+        self.layers['buildings'] = bf.get_osm_data(query_string,'buildings')
+
+    def get_roads(self):
+        query_string = bf.osm_query_string_by_id(self.interest_feature,'highway',node=False)
+
+        self.layers['roads'] = bf.get_osm_data(query_string,'highways')
+
+    def get_custom_tag(self,custom_tag,layername,getnodes=True,getways=True,getrelations=True):
+
+        query_string = bf.osm_query_string_by_id(self.interest_feature,custom_tag,node=getnodes,way=getways,relation=getrelations)
+
+        self.layers[layername] = bf.get_osm_data(query_string,layername)
 
 
