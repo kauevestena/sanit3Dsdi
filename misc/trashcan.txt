@@ -1,0 +1,3 @@
+# codes for metropolitan area:
+metrop_codes = {'Metropolitana': ['3202405','3205101','3201308','3205200','3202207','3205002','3205309']}
+

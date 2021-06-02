@@ -1,9 +1,11 @@
-from platform import node
-import time
+# from platform import node
+# import time
+from sys import excepthook
 from owslib.wfs import WebFeatureService
 import geopandas as gpd
 from requests import Request as req
-from library import basic_functions as bf
+# from library import basic_functions as bf
+import library.basic_functions as bf
 from shapely.geometry import Polygon as sh_polygon
 
 
@@ -20,12 +22,22 @@ class wfs_data_fetcher:
 
     def __init__(self,wfs_url):
         # the constructor
-        self.connection = WebFeatureService(wfs_url)
+
+        while True:
+            try:
+                print('starting connection with ',wfs_url,'  ...')
+                self.connection = WebFeatureService(wfs_url)
+                self.layer_list = list(self.connection.contents)
+
+                if self.layer_list: #check by its contents that the connection suceeded
+                    print('connection sucessful!!')
+                    break
+            except:
+                print('connection not sucessful, retrying')
         self.wfs_url = wfs_url
-        self.layer_list = list(self.connection.contents)
 
 
-    def layer_to_gdf(self,layername):
+    def layer_to_gdf(self,layername,print_req_url=True):
         '''
             transform a vector layer in the wfs datasource to a GeoDataFrame 
         '''
@@ -35,32 +47,53 @@ class wfs_data_fetcher:
         params = dict(service='WFS', version="1.0.0", request='GetFeature',typeName=layername,outputFormat='json')
         req_url = req('GET', self.wfs_url, params=params).prepare().url
 
-        #record the hash from the data:
+        if print_req_url:
+            print(req_url)
+
+        #record the hash from the data as the hash from json as string:
         self.layer_hashes[layername] = bf.get_hash_from_text_in_url(req_url)
 
         return gpd.read_file(req_url)
 
 
-    def get_municipalities(self,municipalities_layername,subset_ibge_codes=[],ibge_cod_field='cod_ibge'):
+    def get_municipalities(self,municipalities_layername,subset_ibge_codes=[],ibge_cod_field='cod_ibge',alt_field=None,alt_value=None,print_mun_gdf_head=False):
         '''
             
         '''
+        if municipalities_layername in self.layer_list:
+            #select the layer containing the municipalities, a special layer, since it will be used as the cropping (clip) layer
+            if not subset_ibge_codes:
+                self.municipalities = self.layer_to_gdf(municipalities_layername)
+            else:
+                mun_gdf = self.layer_to_gdf(municipalities_layername)
+                if print_mun_gdf_head:
+                    print(mun_gdf.head())
+                self.municipalities = mun_gdf.loc[mun_gdf[ibge_cod_field].isin(subset_ibge_codes)]
+                if self.municipalities.empty:
+                    print(ibge_cod_field,subset_ibge_codes)
+                    try:
+                        # sometimes a string representation does not work
+                        self.municipalities = mun_gdf.loc[mun_gdf[int(ibge_cod_field)].isin(subset_ibge_codes)]
+                    except:
+                        print('trying by alternate fields!')
+                        try:
+                            self.municipalities = mun_gdf.loc[mun_gdf[alt_field].isin([alt_value])]
 
-        #select the layer containing the municipalities, a special layer, since it will be used as the cropping (clip) layer
-        if not subset_ibge_codes:
-            self.municipalities = self.layer_to_gdf(municipalities_layername)
+                        except:
+                            print('trouble or alternate values not established')
+
+
+            print(self.municipalities.head())
+
+            # obtaining the bounding box of the interest area
+
+            self.wgs84_bbox = bf.geodataframe_bounding_box(self.municipalities)
+
+            self.clipping_polygon = self.municipalities.dissolve()
+
+            self.clipping_polygon_wgs84 = self.clipping_polygon.to_crs(wgs84_code)
         else:
-            mun_gdf = self.layer_to_gdf(municipalities_layername)
-            self.municipalities = mun_gdf.loc[mun_gdf[ibge_cod_field].isin(subset_ibge_codes)]
-
-
-        # obtaining the bounding box of the interest area
-
-        self.wgs84_bbox = bf.geodataframe_bounding_box(self.municipalities)
-
-        self.clipping_polygon = self.municipalities.dissolve()
-
-        self.clipping_polygon_wgs84 = self.clipping_polygon.to_crs(wgs84_code)
+            print('layer name not found in database!!')
 
 
     def get_layerlist(self):
@@ -70,7 +103,7 @@ class wfs_data_fetcher:
     def dump_layerlist(self,outpath):
         bf.list_dump(self.layer_list, outpath)
 
-    def get_interest_layer_list(self,selection_keystring,category_key):
+    def get_interest_list_of_layers(self,selection_keystring,category_key='sanitation',print_columns=True):
 
         #selecting interest layers from layerlist
         layername_list = bf.select_entries_with_string(self.layer_list,selection_keystring)
@@ -79,6 +112,9 @@ class wfs_data_fetcher:
 
         for layername in layername_list:
             curr_dict[layername] = self.layer_to_gdf(layername)
+            print('imported layer ',layername)
+            if(print_columns):
+                print(curr_dict[layername].columns)
         # funtion used to store all of the interest layers in dictionary
 
 
@@ -186,3 +222,11 @@ class osm_fetcher:
         self.layers[layername] = bf.get_osm_data(query_string,layername)
 
 
+class object_pickler:
+    # using encapsulation to get away from circular importing
+
+    def __int__(self):
+        print('pickler created!!')
+
+    def pickle_an_object(self,input_object,filename):
+        bf.object_pickling(input_object,filename)

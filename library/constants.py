@@ -1,37 +1,31 @@
-import library.basic_functions as bf
 import os
 
 """
-THIS FILE CONTAINS THE SETUP VARIABLES
+THIS FILE CONTAINS THE SETUP VARIABLES FOR THE LIBRARIES MODULE
+for constants to the study-case go to the repo root folder file named "study-case-constants.py" 
 """
 
+# as a workaround to avoid circular import, we redefined the functions, sadly...
 
-# url for the Vector data from Geobases
-geobases_wfs_url = "https://ide.geobases.es.gov.br/geoserver/geonode/wfs"
+def joinToHome(input_path):
+    """
+    join a relative path to the home path
+    """
+    return os.path.join(os.environ['HOME'],input_path.strip('/'))
 
-# link list and MinIO links for DEMs
-dtm_link_list = "https://geobases.static.es.gov.br/public/MAP_ES_2012_2015/MAP_ES_2012_2015_MDT_URL_LIST.txt"
+def create_dir_ifnot_exists(dirname):
+    if not os.path.exists(dirname):
+        os.makedirs(dirname)
 
-dtm_directory_minio = "https://geobases.static.es.gov.br/minio/public/MAP_ES_2012_2015/MDT/"
-
-dsm_link_list = "https://geobases.static.es.gov.br/public/MAP_ES_2012_2015/MAP_ES_2012_2015_MDE_URL_LIST.txt"
-
-dsm_directory_minio = "https://geobases.static.es.gov.br/minio/public/MAP_ES_2012_2015/MDE/"
-
-vitoria_osm_id = 1825817
-
-# municipalityes layer name:
-mun_lyr_name = 'geonode:idaf_limite_municipal_2018_11' 
-
-
-# IBGE code for 'Vitória'
-vitoria_code = '3205309'
-
-# codes for metropolitan area:
-metrop_codes = {'Metropolitana': ['3202405','3205101','3201308','3205200','3202207','3205002','3205309']}
+def createDirs(dirList):
+    for dirPath in dirList:
+        create_dir_ifnot_exists(dirPath)
 
 
 # the output folder, mostly for temporary files
-default_output_folder = bf.joinToHome('data/sanit3d_out')
+default_output_folder = joinToHome('data/sanit3d_out')
 temp_files_outdir = os.path.join(default_output_folder,'temporary')
-bf.createDirs([default_output_folder,temp_files_outdir])
+
+
+createDirs([default_output_folder,temp_files_outdir])
+

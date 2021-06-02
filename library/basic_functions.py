@@ -9,7 +9,7 @@ import geopandas as gpd
 from shapely.geometry import box as sh_box
 from urllib.parse import urlparse
 from wget import download as wget_download
-from library.constants import temp_files_outdir
+import library.constants as constants
 
 def joinToHome(input_path):
     """
@@ -94,7 +94,7 @@ def geodataframe_bounding_box(input_gdf,as_wgs84=True):
 
 
 
-def download_file_from_url(input_url,outfolder=temp_files_outdir):
+def download_file_from_url(input_url,outfolder=constants.temp_files_outdir):
     #thx: https://stackoverflow.com/a/18727481/4436950
     #thx: https://is.gd/FkH1td 
     
@@ -110,7 +110,7 @@ def download_file_from_url(input_url,outfolder=temp_files_outdir):
 
     return filename
 
-def object_pickling(input_object,filename,outfolder=temp_files_outdir,pickle_protocol=4):
+def object_pickling(input_object,filename,outfolder=constants.temp_files_outdir,pickle_protocol=4):
     '''
         to store dataFetching classes, mostly for check for updates in remote datasources
     '''
@@ -152,7 +152,7 @@ def osm_query_string_by_id(interest_area_code,interest_tag="building",node=True,
 
     return overpass_query
 
-def join_to_default_outfolder(filename,outfolder=temp_files_outdir):
+def join_to_default_outfolder(filename,outfolder=constants.temp_files_outdir):
 
     return os.path.join(outfolder,filename)
 

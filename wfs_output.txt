@@ -1,0 +1,52 @@
+starting connection with  https://ide.geobases.es.gov.br/geoserver/geonode/wfs   ...
+
+connection sucessful!!
+
+https://ide.geobases.es.gov.br/geoserver/geonode/wfs?service=WFS&version=1.0.0&request=GetFeature&typeName=geonode%3Aidaf_limite_municipal_2018_11&outputFormat=json
+cod_ibge ['3205309']
+trying by alternate fields!
+                                  id  ...                                           geometry
+47  idaf_limite_municipal_2018_11.49  ...  MULTIPOLYGON (((363834.815 7762611.303, 363859...
+
+[1 rows x 17 columns]
+https://ide.geobases.es.gov.br/geoserver/geonode/wfs?service=WFS&version=1.0.0&request=GetFeature&typeName=geonode%3Aasb_cesan_est_trat_esgoto_1712&outputFormat=json
+
+imported layer  geonode:asb_cesan_est_trat_esgoto_1712
+Index(['id', 'fid', 'OBJECTID', 'NOME', 'STATUS_OP', 'geometry'], dtype='object')
+
+https://ide.geobases.es.gov.br/geoserver/geonode/wfs?service=WFS&version=1.0.0&request=GetFeature&typeName=geonode%3Aasb_cesan_est_elev_agua_1712&outputFormat=json
+
+imported layer  geonode:asb_cesan_est_elev_agua_1712
+Index(['id', 'fid', 'OBJECTID', 'NOME', 'STATUS_OP', 'geometry'], dtype='object')
+https://ide.geobases.es.gov.br/geoserver/geonode/wfs?service=WFS&version=1.0.0&request=GetFeature&typeName=geonode%3Aasb_cesan_est_elev_esgoto_1712&outputFormat=json
+imported layer  geonode:asb_cesan_est_elev_esgoto_1712
+Index(['id', 'fid', 'OBJECTID', 'NOME', 'STATUS_OP', 'geometry'], dtype='object')
+https://ide.geobases.es.gov.br/geoserver/geonode/wfs?service=WFS&version=1.0.0&request=GetFeature&typeName=geonode%3Aasb_cesan_est_trat_agua_1712_1&outputFormat=json
+imported layer  geonode:asb_cesan_est_trat_agua_1712_1
+Index(['id', 'fid', 'OBJECTID', 'NOME', 'STATUS_OP', 'geometry'], dtype='object')
+https://ide.geobases.es.gov.br/geoserver/geonode/wfs?service=WFS&version=1.0.0&request=GetFeature&typeName=geonode%3Aasb_cesan_rotas_biossolido&outputFormat=json
+imported layer  geonode:asb_cesan_rotas_biossolido
+Index(['id', 'OBJECTID', 'ID', 'NOME', 'DIST', 'geometry'], dtype='object')
+https://ide.geobases.es.gov.br/geoserver/geonode/wfs?service=WFS&version=1.0.0&request=GetFeature&typeName=geonode%3Aasb_cesan_rede_coleto_esg_1712&outputFormat=json
+imported layer  geonode:asb_cesan_rede_coleto_esg_1712
+Index(['id', 'fid', 'OBJECTID', 'DIAMETRO', 'SITUACAO', 'MATERIAL',
+       'SHAPE_LEN', 'geometry'],
+      dtype='object')
+https://ide.geobases.es.gov.br/geoserver/geonode/wfs?service=WFS&version=1.0.0&request=GetFeature&typeName=geonode%3Aasb_cesan_rede_agua_bruta_1712&outputFormat=json
+imported layer  geonode:asb_cesan_rede_agua_bruta_1712
+Index(['id', 'fid', 'OBJECTID', 'DIAMETRO', 'SITUACAO', 'MATERIAL',
+       'geometry'],
+      dtype='object')
+https://ide.geobases.es.gov.br/geoserver/geonode/wfs?service=WFS&version=1.0.0&request=GetFeature&typeName=geonode%3Aasb_cesan_rede_agua_tratada_1712&outputFormat=json
+imported layer  geonode:asb_cesan_rede_agua_tratada_1712
+Index(['id', 'DIAMETRO', 'MATERIAL', 'SITUACAO', 'geometry'], dtype='object')
+https://ide.geobases.es.gov.br/geoserver/geonode/wfs?service=WFS&version=1.0.0&request=GetFeature&typeName=geonode%3Aasb_cesan_rede_emiss_agua_1712&outputFormat=json
+imported layer  geonode:asb_cesan_rede_emiss_agua_1712
+Index(['id', 'fid', 'MATERIAL', 'SIMLNFLAG', 'DIAMETRO', 'SITUACAO',
+       'INLINE_FID', 'OBJECTID', 'geometry'],
+      dtype='object')
+https://ide.geobases.es.gov.br/geoserver/geonode/wfs?service=WFS&version=1.0.0&request=GetFeature&typeName=geonode%3Aasb_cesan_red_recalq_esgo_1712_1&outputFormat=json
+imported layer  geonode:asb_cesan_red_recalq_esgo_1712_1
+Index(['id', 'fid', 'OBJECTID', 'DIAMETRO', 'SITUACAO', 'MATERIAL',
+       'geometry'],
+      dtype='object')
