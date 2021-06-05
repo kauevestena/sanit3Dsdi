@@ -197,3 +197,8 @@ def get_osm_data(querystring,tempfilesname,print_response=True,delete_temp_files
 
     # return only polygons, we have no interest on broken features
     return as_gdf[as_gdf['geometry'].geom_type == 'Polygon']
+
+
+
+# aliasing to avoid circular importing
+default_output_folder = constants.temp_files_outdir

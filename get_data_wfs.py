@@ -1,4 +1,3 @@
-from owslib.util import dump
 from study_case_config import *
 from library import data_fetch as df
 
@@ -24,7 +23,7 @@ wfs_source.get_municipalities(mun_lyr_name,[IBGE_code_municipality],mun_id_field
 # acquiring the interest layers, default are layers from sanitation
 wfs_source.get_interest_list_of_layers(interest_layers_keystring)
 
-dumper.pickle_an_object(wfs_source,'wfs_source.pickle')
+dumper.pickle_an_object(wfs_source,wfs_pickle_filename)
 
 
 

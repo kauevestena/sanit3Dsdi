@@ -7,6 +7,7 @@ from requests import Request as req
 # from library import basic_functions as bf
 import library.basic_functions as bf
 from shapely.geometry import Polygon as sh_polygon
+import json, os
 
 
 wgs84_code = "EPSG:4326"
@@ -18,6 +19,8 @@ class wfs_data_fetcher:
     wfs_url = ''
     municipalities = None # the municipalities geoDataFrame
     layer_hashes = {} # to store hashcode of interest layers
+    layer_urls = {}
+    layer_filepaths = {}
     layers = {'sanitation':{}} #to store interest_layers
 
     def __init__(self,wfs_url):
@@ -42,6 +45,7 @@ class wfs_data_fetcher:
             transform a vector layer in the wfs datasource to a GeoDataFrame 
         '''
 
+        # TODO ALSO DUMP TO GEOJSON FILE
 
         # parameters to create url_request:
         params = dict(service='WFS', version="1.0.0", request='GetFeature',typeName=layername,outputFormat='json')
@@ -52,8 +56,18 @@ class wfs_data_fetcher:
 
         #record the hash from the data as the hash from json as string:
         self.layer_hashes[layername] = bf.get_hash_from_text_in_url(req_url)
+        # recording the request url:
+        self.layer_urls[layername] = req_url
 
-        return gpd.read_file(req_url)
+        as_gdf = gpd.read_file(req_url)
+
+        outpath = os.path.join(bf.default_output_folder,layername+'.geojson')
+
+        self.layer_filepaths[layername] = outpath
+
+        as_gdf.to_file(outpath,driver='GeoJSON')
+
+        return as_gdf
 
 
     def get_municipalities(self,municipalities_layername,subset_ibge_codes=[],ibge_cod_field='cod_ibge',alt_field=None,alt_value=None,print_mun_gdf_head=False):
@@ -117,6 +131,11 @@ class wfs_data_fetcher:
                 print(curr_dict[layername].columns)
         # funtion used to store all of the interest layers in dictionary
 
+    def compile_and_dump_interest_infos(self,only_compile=False):
+        self.interest_infos = {'layer_url':self.layer_urls,'layer_hash':self.layer_hashes,'layer_paths':self.layer_filepaths,'wgs84_bounding_box':self.wgs84_bbox}
+
+        if not only_compile:
+            pass
 
 class imagery_fetcher:
     # a class to fetch imagery from a datasource
