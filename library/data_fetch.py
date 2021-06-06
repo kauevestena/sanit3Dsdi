@@ -1,5 +1,5 @@
 # from platform import node
-# import time
+import datetime
 from sys import excepthook
 from owslib.wfs import WebFeatureService
 import geopandas as gpd
@@ -23,14 +23,16 @@ class wfs_data_fetcher:
     layer_filepaths = {}
     layers = {'sanitation':{}} #to store interest_layers
 
-    def __init__(self,wfs_url):
+    def __init__(self,wfs_url,dump_json_name='wfs_data_dump.json',checking_mode=False):
         # the constructor
 
         while True:
             try:
                 print('starting connection with ',wfs_url,'  ...')
+                self.checking_mode = checking_mode
                 self.connection = WebFeatureService(wfs_url)
                 self.layer_list = list(self.connection.contents)
+                self.dumpfile_name = dump_json_name
 
                 if self.layer_list: #check by its contents that the connection suceeded
                     print('connection sucessful!!')
@@ -44,8 +46,6 @@ class wfs_data_fetcher:
         '''
             transform a vector layer in the wfs datasource to a GeoDataFrame 
         '''
-
-        # TODO ALSO DUMP TO GEOJSON FILE
 
         # parameters to create url_request:
         params = dict(service='WFS', version="1.0.0", request='GetFeature',typeName=layername,outputFormat='json')
@@ -61,11 +61,14 @@ class wfs_data_fetcher:
 
         as_gdf = gpd.read_file(req_url)
 
+        # dumping to .geojson
         outpath = os.path.join(bf.default_output_folder,layername+'.geojson')
 
         self.layer_filepaths[layername] = outpath
 
-        as_gdf.to_file(outpath,driver='GeoJSON')
+        if not self.checking_mode:
+
+            as_gdf.to_file(outpath,driver='GeoJSON')
 
         return as_gdf
 
@@ -132,10 +135,26 @@ class wfs_data_fetcher:
         # funtion used to store all of the interest layers in dictionary
 
     def compile_and_dump_interest_infos(self,only_compile=False):
-        self.interest_infos = {'layer_url':self.layer_urls,'layer_hash':self.layer_hashes,'layer_paths':self.layer_filepaths,'wgs84_bounding_box':self.wgs84_bbox}
+        self.interest_infos = {'layer_url':self.layer_urls,'layer_hash':self.layer_hashes,'layer_paths':self.layer_filepaths,'wgs84_bounding_box':self.wgs84_bbox.wkt,'wgs_84_boundaries':self.clipping_polygon_wgs84.to_wkt,'creation_date':str(datetime.date.today())}
 
-        if not only_compile:
-            pass
+        self.json_outpath = os.path.join(bf.default_output_folder,self.dumpfile_name)
+
+        if (not only_compile) or (not self.checking_mode):
+            print('file for future comparing created!!')
+            with open(self.json_outpath,'w+') as handle:
+                json.dump(self.interest_infos,handle)
+        else:
+            print('infos not dumped, you probabily are checking for updates!!')
+
+    def compare(self,json_filepath=None):
+        if not self.checking_mode:
+            print('object not created in checking mode, look at the constructor call')
+        else:
+            
+        
+
+    
+
 
 class imagery_fetcher:
     # a class to fetch imagery from a datasource

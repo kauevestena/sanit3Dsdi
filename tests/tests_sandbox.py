@@ -1,21 +1,32 @@
-import json
+# import json
 
 
-test_dic = {'b':[23,312,312,321,321,3,123,213,21,3,5,435,4,45,6],'c':['dasda','fsdfdsf']}
-print(test_dic)
+# test_dic = {'b':[23,312,312,321,321,3,123,213,21,3,5,435,4,45,6],'c':['dasda','fsdfdsf']}
+# print(test_dic)
 
 
-filename = 'tests/json_test.json'
+# filename = 'tests/json_test.json'
 
-with open(filename,'w+') as handle:
-    json.dump(test_dic,handle)
+# with open(filename,'w+') as handle:
+#     json.dump(test_dic,handle)
 
-test_dic = None
+# test_dic = None
 
-print(test_dic)
+# print(test_dic)
 
-with open(filename) as opener:
-    test_dic = json.load(opener)
+# with open(filename) as opener:
+#     test_dic = json.load(opener)
 
 
-print(test_dic)
+# print(test_dic)
+
+
+import datetime
+
+print(datetime.datetime.now())
+print(type(datetime.datetime.now()))
+print(type(str(datetime.datetime.now())))
+print(str(datetime.datetime.now()))
+print(datetime.date.today())
+
+

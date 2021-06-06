@@ -46,8 +46,8 @@ alt_value = 'Vitória'
 interest_layers_keystring = 'cesan'
 
 
-# the default filename for pickled objects, you can leave as the default filenames 
-wfs_pickle_filename = 'wfs_source.pickle'
-dtm_pickle_filename = 'dtm_source.pickle'
-dsm_pickle_filename = 'dsm_source.pickle'
-osm_pickle_filename = 'osm_source.pickle'
+# the default filename for dumped interest data, you can leave as the default filenames 
+wfs_dump_filename = 'wfs_data_dump.json'
+dtm_dump_filename = 'dtm_data_dump.json'
+dsm_dump_filename = 'dsm_data_dump.json'
+osm_dump_filename = 'osm_data_dump.json'

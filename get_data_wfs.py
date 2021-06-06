@@ -11,8 +11,6 @@ modify it to another study-case
 
 """
 
-#the pickler object to turn memory-stored objects into files
-dumper = df.object_pickler()
 
 # first we will fetch data from the wfs source (pipery)
 wfs_source = df.wfs_data_fetcher(wfs_url)
@@ -20,10 +18,12 @@ wfs_source = df.wfs_data_fetcher(wfs_url)
 # acquiring the boundary layer
 wfs_source.get_municipalities(mun_lyr_name,[IBGE_code_municipality],mun_id_field,alt_field=alt_field,alt_value=alt_value)
 
-# acquiring the interest layers, default are layers from sanitation
+# acquiring (also downloading as geojson) the interest layers, default are layers from sanitation
 wfs_source.get_interest_list_of_layers(interest_layers_keystring)
 
-dumper.pickle_an_object(wfs_source,wfs_pickle_filename)
+#dumping interest data, including paths for download layers
+wfs_source.compile_and_dump_interest_infos()
+
 
 
 
