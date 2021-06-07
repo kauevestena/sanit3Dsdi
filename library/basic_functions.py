@@ -57,7 +57,9 @@ def select_entries_with_extension(inputlist,ext_string):
 
     return out_list
 
-@timeout(60)
+
+# TODO RE-ENABLE TIMEOUT
+# @timeout(60)
 def  parseGdalinfoJson(inputpath,print_runstring=False,from_www=True,optionals = '',print_outstring=False):
     '''
         Parse GDALINFO from a OGR compliant image as json. The image can be web-hosted or no.
@@ -67,6 +69,9 @@ def  parseGdalinfoJson(inputpath,print_runstring=False,from_www=True,optionals =
 
     if from_www:
         url_preffix = '/vsicurl/'
+    else:
+        inputpath = download_file_from_url(inputpath,return_filename=False)
+        print() # just to break a line 
 
     # if quoted_path:
     #     inputpath = '"'+inputpath+'"'
@@ -76,12 +81,20 @@ def  parseGdalinfoJson(inputpath,print_runstring=False,from_www=True,optionals =
     if print_runstring:
         print(runstring)
     
+    # the magic part from some handsome person from stack overflow
     out = subprocess.run(runstring,shell=True,stdout=subprocess.PIPE)
 
     as_str = out.stdout.decode('utf-8').replace('\\n','')
+    #####
 
     if print_outstring:
         print(as_str)
+
+    # cleaning up in case of donwload temporary
+    if not from_www:
+        delete_filelist_that_exists([inputpath])
+        if not os.path.exists(inputpath):
+            print('file ',inputpath,' deleted!!!')
 
     return json.loads(as_str)
 
@@ -108,7 +121,7 @@ def geodataframe_bounding_box(input_gdf,as_wgs84=True):
 
 
 
-def download_file_from_url(input_url,outfolder=constants.temp_files_outdir):
+def download_file_from_url(input_url,outfolder=constants.temp_files_outdir,return_filename=True):
     #thx: https://stackoverflow.com/a/18727481/4436950
     #thx: https://is.gd/FkH1td 
     
@@ -122,7 +135,10 @@ def download_file_from_url(input_url,outfolder=constants.temp_files_outdir):
     #with the tailored outpath, we can download the file
     wget_download(input_url,outpath)
 
-    return filename
+    if return_filename:
+        return filename
+    else:
+        return outpath
 
 def object_pickling(input_object,filename,outfolder=constants.temp_files_outdir,pickle_protocol=4):
     '''

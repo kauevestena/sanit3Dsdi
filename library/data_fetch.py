@@ -216,7 +216,7 @@ class imagery_fetcher:
 
     checksums = {}
 
-    def __init__(self,source_url,source_type = 'txt_list',extension='.tif',imagery_name='DEM',checking_mode=False,dump_json_name='raster_data_dump.json',max_timeouts=10):
+    def __init__(self,source_url,stats_without_download=False,source_type = 'txt_list',extension='.tif',imagery_name='DEM',checking_mode=False,dump_json_name='raster_data_dump.json',max_timeouts=10):
 
         # TODO : another datasources beyond text list
         self.checking_mode = checking_mode
@@ -254,7 +254,7 @@ class imagery_fetcher:
 
                 while True: # try considering timeout until sucess
                     try:  
-                        json_info = bf.parseGdalinfoJson(image_url,True)
+                        json_info = bf.parseGdalinfoJson(image_url,True,stats_without_download)
                         break
                     except:
                         timeouts += 1
