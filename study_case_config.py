@@ -48,6 +48,13 @@ interest_layers_keystring = 'cesan'
 
 # the default filename for dumped interest data, you can leave as the default filenames 
 wfs_dump_filename = 'wfs_data_dump.json'
-dtm_dump_filename = 'dtm_data_dump.json'
-dsm_dump_filename = 'dsm_data_dump.json'
+dtm_dump_filename = 'dtm_raster_data_dump.json'
+dsm_dump_filename = 'dsm_raster_data_dump.json'
 osm_dump_filename = 'osm_data_dump.json'
+
+# variable to control if wanna change if only imagery have been updated
+redraw_if_imagery_changed_alone = False
+
+
+# default wgs84 bounding box key:
+wgs84bboxkey = 'wgs84_bounding_box'

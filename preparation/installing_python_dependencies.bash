@@ -12,9 +12,8 @@ $PYTHONPATH -m pip install OWSLib
 # geopandas 
 $PYTHONPATH -m pip install geopandas
 
-# rtree 
-$PYTHONPATH -m pip install rtree
-
 # wget 
 $PYTHONPATH -m pip install wget
 
+# timeout-decorator 
+$PYTHONPATH -m pip install timeout-decorator

@@ -1,15 +1,18 @@
 # warning supŕession 
-import re
-from tempfile import TemporaryDirectory
+# import re
+# from tempfile import TemporaryDirectory
 from warnings import simplefilter
 simplefilter(action='ignore', category=FutureWarning)
 
-import os, requests, hashlib, subprocess, json, pickle
+import os, requests, hashlib, subprocess, json, pickle, time
 import geopandas as gpd
 from shapely.geometry import box as sh_box
 from urllib.parse import urlparse
 from wget import download as wget_download
 import library.constants as constants
+from timeout_decorator import timeout #just ignore if pylance complains
+
+
 
 def joinToHome(input_path):
     """
@@ -34,16 +37,27 @@ def get_hash_from_text_in_url(url):
     textstring = requests.get(url).text
     return hash_string(textstring)
 
+hash_algo = 'sha256'
 
-def hash_string(inputstr):
-    hasher = hashlib.sha256()
+def hash_string(inputstr,algorithm=hash_algo):
+    # TODO save hash encoding
+    hasher = hashlib.new(algorithm)
     hasher.update(inputstr.encode())
     return hasher.hexdigest()
 
 def select_entries_with_string(inputlist,inputstring):
     return [entry for entry in inputlist if inputstring in entry]
 
+def select_entries_with_extension(inputlist,ext_string):
+    # this one will prevent from things like "archive.desired_ext.other_ext"
+    out_list = []
+    for entry in inputlist:
+        if entry.endswith(ext_string):
+            out_list.append(entry)
 
+    return out_list
+
+@timeout(60)
 def  parseGdalinfoJson(inputpath,print_runstring=False,from_www=True,optionals = '',print_outstring=False):
     '''
         Parse GDALINFO from a OGR compliant image as json. The image can be web-hosted or no.
@@ -162,7 +176,7 @@ def delete_filelist_that_exists(filepathlist):
             os.remove(filepath)
 
 
-def get_osm_data(querystring,tempfilesname,print_response=True,delete_temp_files=False):
+def get_osm_data(querystring,tempfilesname,print_response=True,delete_temp_files=False,interest_geom_type='Polygon'):
     '''
         get the osmdata and stores in a geodataframe, also generates temporary files
     '''
@@ -173,21 +187,26 @@ def get_osm_data(querystring,tempfilesname,print_response=True,delete_temp_files
 
     # TODO check the response, beyond terminal printing
     if print_response:
-        print_response(response)
+        print(response)
 
     # the outpaths for temporary files
     xmlfilepath = join_to_default_outfolder(tempfilesname+'_osm.xml')
     geojsonfilepath = join_to_default_outfolder(tempfilesname+'_osm.geojson')
 
+    print('xml will be written to: ',xmlfilepath)
+
     # the xml file writing part:
     with open(xmlfilepath,'w+') as handle:
         handle.write(response.text)
+
+    print('geojson will be written to: ',geojsonfilepath)
 
     # the command-line call
     runstring = f'osmtogeojson "{xmlfilepath}" > "{geojsonfilepath}"'
 
     out = subprocess.run(runstring,shell=True)
 
+    print('conversion sucessfull!!')
     # reading as a geodataframe
     as_gdf = gpd.read_file(geojsonfilepath)
 
@@ -196,9 +215,24 @@ def get_osm_data(querystring,tempfilesname,print_response=True,delete_temp_files
         delete_filelist_that_exists([xmlfilepath,geojsonfilepath])
 
     # return only polygons, we have no interest on broken features
-    return as_gdf[as_gdf['geometry'].geom_type == 'Polygon']
+    if interest_geom_type:
+        new_gdf = as_gdf[as_gdf['geometry'].geom_type == interest_geom_type]
 
+        #overwrite file with only selected features
 
+        print('saving subset with only ',interest_geom_type)
+        new_gdf.to_file(geojsonfilepath,driver='GeoJSON')
+
+        return new_gdf
+    else:
+        return as_gdf
+
+def print_rem_time_info(total_it,curent_it,ref_time):
+    # "it" stands for 'iteration'
+    it_time  = time.time()-ref_time
+    rem_its  = total_it-curent_it
+    rem_time = it_time * rem_its
+    print("took {:.4f} seconds, estimated remaining time: {:.4f} minutes or {:.4f} hours, iteration {} of {}".format(it_time,rem_time/60.0,rem_time/3600.0,curent_it,total_it))
 
 # aliasing to avoid circular importing
 default_output_folder = constants.temp_files_outdir

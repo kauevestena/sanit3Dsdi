@@ -1,32 +1,18 @@
-# import json
+import time
+
+a = ['b.img','b.img','b.img','b.img.xml']
 
 
-# test_dic = {'b':[23,312,312,321,321,3,123,213,21,3,5,435,4,45,6],'c':['dasda','fsdfdsf']}
-# print(test_dic)
+for i,entry in enumerate(a):
+    
+
+    print(a,'\n',i,'\n',entry)
+
+    time.sleep(1)
+
+    if i < 20:
+       a.append(i)
 
 
-# filename = 'tests/json_test.json'
 
-# with open(filename,'w+') as handle:
-#     json.dump(test_dic,handle)
-
-# test_dic = None
-
-# print(test_dic)
-
-# with open(filename) as opener:
-#     test_dic = json.load(opener)
-
-
-# print(test_dic)
-
-
-import datetime
-
-print(datetime.datetime.now())
-print(type(datetime.datetime.now()))
-print(type(str(datetime.datetime.now())))
-print(str(datetime.datetime.now()))
-print(datetime.date.today())
-
-
+print('\n\n\n',a)
