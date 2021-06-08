@@ -27,7 +27,7 @@ class wfs_data_fetcher:
     # to control if the interest infos have been compiled
     infos_compiled = False
 
-    def __init__(self,wfs_url,dump_json_name='wfs_data_dump.json',checking_mode=False):
+    def __init__(self,wfs_url,json_dumpfile_name='wfs_data_dump.json',checking_mode=False):
         # the constructor
 
         while True:
@@ -36,7 +36,7 @@ class wfs_data_fetcher:
                 self.checking_mode = checking_mode
                 self.connection = WebFeatureService(wfs_url)
                 self.layer_list = list(self.connection.contents)
-                self.dumpfile_name = dump_json_name
+                self.dumpfile_name = json_dumpfile_name
 
                 if self.layer_list: #check by its contents that the connection suceeded
                     print('connection sucessful!!')
@@ -215,12 +215,13 @@ class imagery_fetcher:
     # a class to fetch imagery from a datasource
 
     checksums = {}
+    downloaded_images = {}
 
-    def __init__(self,source_url,stats_without_download=False,source_type = 'txt_list',extension='.tif',imagery_name='DEM',checking_mode=False,dump_json_name='raster_data_dump.json',max_timeouts=10):
+    def __init__(self,source_url,stats_without_download=False,source_type = 'txt_list',extension='.tif',imagery_name='DEM',checking_mode=False,json_dumpfile_name='raster_data_dump.json',max_timeouts=10):
 
         # TODO : another datasources beyond text list
         self.checking_mode = checking_mode
-        self.dumpfile_name = dump_json_name
+        self.dumpfile_name = json_dumpfile_name
 
 
         if source_type == 'txt_list':
@@ -242,6 +243,10 @@ class imagery_fetcher:
 
             self.missing_images = []
 
+            self.tempfiles_outdir = os.path.join(bf.default_output_folder,'temp_images')
+
+            bf.create_dir_ifnot_exists(self.tempfiles_outdir)
+
             
             for i,image_url in enumerate(self.link_list):
                 t1 = time.time()
@@ -252,10 +257,15 @@ class imagery_fetcher:
 
                 sucess = True
 
+                # tried_once = False 
+
                 while True: # try considering timeout until sucess
-                    try:  
-                        json_info = bf.parseGdalinfoJson(image_url,True,stats_without_download)
+                    try:
+
+                        json_info = bf.parseGdalinfoJson(image_url,True,stats_without_download,outfolder_for_temporaries=self.tempfiles_outdir)
+                
                         break
+                    
                     except:
                         timeouts += 1
                         if timeouts > max_timeouts:
@@ -290,11 +300,21 @@ class imagery_fetcher:
                     
                     self.checksums[image_url] = sum
 
-                bf.print_rem_time_info(len(self.link_list),i,t1)
+                bf.print_rem_time_info(len(self.link_list)-1,i,t1)
 
 
             self.imagery_bboxes_wgs84 = gpd.GeoDataFrame(wgs84_boundingboxes,crs=wgs84_code)
+
+            self.bbox_outpath = os.path.join(bf.default_output_folder,'bounding_boxes_wgs84_'+self.name+'.geojson')
+
+            self.imagery_bboxes_wgs84.to_file(self.bbox_outpath,driver='GeoJSON')
+
+
             print('bounding boxes recorded!!')
+
+            # deleting temporary folder as its generally leaves garbage in
+            time.sleep(1)
+            bf.delete_folder_if_exists(self.tempfiles_outdir)
 
 
         #else if:
@@ -340,13 +360,20 @@ class imagery_fetcher:
         # finally we will download the imagery
         for image_url in self.interest_entries["url"]:
             print('donwloading ',image_url)
-            bf.download_file_from_url(image_url)
 
+            while True:
+                try:
+                    print()
+                    img_outpath = bf.download_file_from_url(image_url,return_filename=False,timeout=True)
+                    self.downloaded_images[image_url] = img_outpath
+                    break
+                except:
+                    print('timeout reached, trying again')
 
 
 
     def compile_and_dump_interest_infos(self,only_compile=False): #FOR RASTER DATA, DO NOT CONFUSE WITH WFS COUNTERPART
-        self.interest_infos = {'checksums':self.checksums,'creation_date':str(datetime.date.today())}
+        self.interest_infos = {'checksums':self.checksums,'creation_date':str(datetime.date.today()),'bounding_boxes_path':self.bbox_outpath,'downloaded_image_path':self.downloaded_images}
 
         self.json_outpath = os.path.join(bf.default_output_folder,self.dumpfile_name)
 

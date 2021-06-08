@@ -14,8 +14,8 @@ modify it to another study-case
 """
 
 # we will fetch data from the raster source (DEM)
-dtm_raster_source = df.imagery_fetcher(dtm_link_list,extension=dtm_image_extension,imagery_name='DTM')
-dsm_raster_source = df.imagery_fetcher(dsm_link_list,extension=dsm_image_extension,imagery_name='DSM')
+dtm_raster_source = df.imagery_fetcher(dtm_link_list,extension=dtm_image_extension,imagery_name='DTM',json_dumpfile_name=dtm_dump_filename)
+dsm_raster_source = df.imagery_fetcher(dsm_link_list,extension=dsm_image_extension,imagery_name='DSM',json_dumpfile_name=dsm_dump_filename)
 
 # getting bounding box for both:
 dtm_bounding_box = dtm_raster_source.get_a_bounding_box(wfs_dump_filename,wgs84bboxkey)

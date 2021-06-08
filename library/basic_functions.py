@@ -1,6 +1,7 @@
 # warning supŕession 
 # import re
 # from tempfile import TemporaryDirectory
+import shutil
 from warnings import simplefilter
 simplefilter(action='ignore', category=FutureWarning)
 
@@ -57,10 +58,14 @@ def select_entries_with_extension(inputlist,ext_string):
 
     return out_list
 
+def delete_folder_if_exists(folderpath):
+    if os.path.exists(folderpath):
+        shutil.rmtree(folderpath)
 
-# TODO RE-ENABLE TIMEOUT
-# @timeout(60)
-def  parseGdalinfoJson(inputpath,print_runstring=False,from_www=True,optionals = '',print_outstring=False):
+# TODO IMPROVE TIMEOUT
+# but that is tricky as depends on internet speed
+@timeout(300)
+def  parseGdalinfoJson(inputpath,print_runstring=False,from_www=True,local_file=False,optionals = '',print_outstring=False,outfolder_for_temporaries=None):
     '''
         Parse GDALINFO from a OGR compliant image as json. The image can be web-hosted or no.
     '''
@@ -70,8 +75,12 @@ def  parseGdalinfoJson(inputpath,print_runstring=False,from_www=True,optionals =
     if from_www:
         url_preffix = '/vsicurl/'
     else:
-        inputpath = download_file_from_url(inputpath,return_filename=False)
-        print() # just to break a line 
+        if not local_file: # so one can give a path from a local file
+            if outfolder_for_temporaries:
+                inputpath = download_file_from_url(inputpath,return_filename=False,outfolder = outfolder_for_temporaries)
+            else:
+                inputpath = download_file_from_url(inputpath,return_filename=False)
+            print() # just to break a line 
 
     # if quoted_path:
     #     inputpath = '"'+inputpath+'"'
@@ -91,7 +100,8 @@ def  parseGdalinfoJson(inputpath,print_runstring=False,from_www=True,optionals =
         print(as_str)
 
     # cleaning up in case of donwload temporary
-    if not from_www:
+    if (not from_www) and (not local_file):
+        time.sleep(1)
         delete_filelist_that_exists([inputpath])
         if not os.path.exists(inputpath):
             print('file ',inputpath,' deleted!!!')
@@ -121,7 +131,7 @@ def geodataframe_bounding_box(input_gdf,as_wgs84=True):
 
 
 
-def download_file_from_url(input_url,outfolder=constants.temp_files_outdir,return_filename=True):
+def download_file_from_url(input_url,outfolder=constants.temp_files_outdir,return_filename=True,timeout=False):
     #thx: https://stackoverflow.com/a/18727481/4436950
     #thx: https://is.gd/FkH1td 
     
@@ -133,12 +143,23 @@ def download_file_from_url(input_url,outfolder=constants.temp_files_outdir,retur
     outpath = os.path.join(outfolder,filename)
 
     #with the tailored outpath, we can download the file
-    wget_download(input_url,outpath)
+    
+    if timeout:
+        wget_download_with_timeout(input_url,outpath)
+    else:
+        wget_download(input_url,outpath)
 
     if return_filename:
         return filename
     else:
         return outpath
+
+
+@timeout(300)
+def wget_download_with_timeout(input_url,outpath):
+    wget_download(input_url,outpath)
+
+
 
 def object_pickling(input_object,filename,outfolder=constants.temp_files_outdir,pickle_protocol=4):
     '''
