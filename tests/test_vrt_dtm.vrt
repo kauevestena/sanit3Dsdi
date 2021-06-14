@@ -1,0 +1,48 @@
+<VRTDataset rasterXSize="13177" rasterYSize="10002">
+  <SRS dataAxisToSRSAxisMapping="1,2">PROJCS["SIRGAS_2000_UTM_Zone_24S",GEOGCS["SIRGAS_2000",DATUM["Sistema_de_Referencia_Geocentrico_para_las_AmericaS_2000",SPHEROID["GRS_1980",6378137,298.257222101004],TOWGS84[0,0,0,0,0,0,0],AUTHORITY["EPSG","6674"]],PRIMEM["Greenwich",0],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]]],PROJECTION["Transverse_Mercator"],PARAMETER["latitude_of_origin",0],PARAMETER["central_meridian",-39],PARAMETER["scale_factor",0.9996],PARAMETER["false_easting",500000],PARAMETER["false_northing",10000000],UNIT["meters",1],AXIS["Easting",EAST],AXIS["Northing",NORTH]]</SRS>
+  <GeoTransform>  3.4999900000000000e+05,  2.0000000000000000e+00,  0.0000000000000000e+00,  7.7700012000000002e+06,  0.0000000000000000e+00, -2.0000000000000000e+00</GeoTransform>
+  <VRTRasterBand dataType="UInt16" band="1">
+    <SimpleSource>
+      <SourceFilename relativeToVRT="0">/home/kaue/data/sanit3d_out/temporary/DTM_35_776.img</SourceFilename>
+      <SourceBand>1</SourceBand>
+      <SourceProperties RasterXSize="5001" RasterYSize="5002" DataType="UInt16" BlockXSize="64" BlockYSize="64" />
+      <SrcRect xOff="0" yOff="0" xSize="5001" ySize="5002" />
+      <DstRect xOff="0" yOff="4999.75900000008" xSize="5001" ySize="5002" />
+    </SimpleSource>
+    <SimpleSource>
+      <SourceFilename relativeToVRT="0">/home/kaue/data/sanit3d_out/temporary/DTM_35_777.img</SourceFilename>
+      <SourceBand>1</SourceBand>
+      <SourceProperties RasterXSize="5001" RasterYSize="5001" DataType="UInt16" BlockXSize="64" BlockYSize="64" />
+      <SrcRect xOff="0" yOff="0" xSize="5001" ySize="5001" />
+      <DstRect xOff="0" yOff="0.520000000018626" xSize="5001" ySize="5001" />
+    </SimpleSource>
+    <SimpleSource>
+      <SourceFilename relativeToVRT="0">/home/kaue/data/sanit3d_out/temporary/DTM_36_776.img</SourceFilename>
+      <SourceBand>1</SourceBand>
+      <SourceProperties RasterXSize="5001" RasterYSize="5002" DataType="UInt16" BlockXSize="64" BlockYSize="64" />
+      <SrcRect xOff="0" yOff="0" xSize="5001" ySize="5002" />
+      <DstRect xOff="5000" yOff="4999.52000000002" xSize="5001" ySize="5002" />
+    </SimpleSource>
+    <SimpleSource>
+      <SourceFilename relativeToVRT="0">/home/kaue/data/sanit3d_out/temporary/DTM_36_777.img</SourceFilename>
+      <SourceBand>1</SourceBand>
+      <SourceProperties RasterXSize="5001" RasterYSize="5001" DataType="UInt16" BlockXSize="64" BlockYSize="64" />
+      <SrcRect xOff="0" yOff="0" xSize="5001" ySize="5001" />
+      <DstRect xOff="5000" yOff="0.520000000018626" xSize="5001" ySize="5001" />
+    </SimpleSource>
+    <SimpleSource>
+      <SourceFilename relativeToVRT="0">/home/kaue/data/sanit3d_out/temporary/DTM_37_776.img</SourceFilename>
+      <SourceBand>1</SourceBand>
+      <SourceProperties RasterXSize="1340" RasterYSize="2646" DataType="UInt16" BlockXSize="64" BlockYSize="64" />
+      <SrcRect xOff="0" yOff="0" xSize="1340" ySize="2646" />
+      <DstRect xOff="9999.63" yOff="5000" xSize="1340" ySize="2646" />
+    </SimpleSource>
+    <SimpleSource>
+      <SourceFilename relativeToVRT="0">/home/kaue/data/sanit3d_out/temporary/DTM_37_777.img</SourceFilename>
+      <SourceBand>1</SourceBand>
+      <SourceProperties RasterXSize="3177" RasterYSize="5001" DataType="UInt16" BlockXSize="64" BlockYSize="64" />
+      <SrcRect xOff="0" yOff="0" xSize="3177" ySize="5001" />
+      <DstRect xOff="9999.63" yOff="0" xSize="3177" ySize="5001" />
+    </SimpleSource>
+  </VRTRasterBand>
+</VRTDataset>

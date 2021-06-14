@@ -13,7 +13,7 @@ from wget import download as wget_download
 import library.constants as constants
 from timeout_decorator import timeout #just ignore if pylance complains
 
-
+default_timeout = 30
 
 def joinToHome(input_path):
     """
@@ -64,7 +64,7 @@ def delete_folder_if_exists(folderpath):
 
 # TODO IMPROVE TIMEOUT
 # but that is tricky as depends on internet speed
-@timeout(300)
+@timeout(default_timeout)
 def  parseGdalinfoJson(inputpath,print_runstring=False,from_www=True,local_file=False,optionals = '',print_outstring=False,outfolder_for_temporaries=None):
     '''
         Parse GDALINFO from a OGR compliant image as json. The image can be web-hosted or no.
@@ -131,23 +131,42 @@ def geodataframe_bounding_box(input_gdf,as_wgs84=True):
 
 
 
-def download_file_from_url(input_url,outfolder=constants.temp_files_outdir,return_filename=True,timeout=False):
+def download_file_from_url(input_url,outfolder=constants.temp_files_outdir,return_filename=True,timeout=False,filename_preffix=None,try_till_download=False):
+    '''
+        download a file specifying some conditions, the "try_till_download" parameter will override 'timeout' parameter
+    '''
     #thx: https://stackoverflow.com/a/18727481/4436950
     #thx: https://is.gd/FkH1td 
     
     # the url as a path
     url_path = urlparse(input_url).path
 
+    
     filename = os.path.basename(url_path)
+
+    if filename_preffix:
+        filename = filename_preffix + filename
 
     outpath = os.path.join(outfolder,filename)
 
     #with the tailored outpath, we can download the file
     
-    if timeout:
-        wget_download_with_timeout(input_url,outpath)
+    if not try_till_download:
+        if timeout:
+            wget_download_with_timeout(input_url,outpath)
+        else:
+            wget_download(input_url,outpath)
     else:
-        wget_download(input_url,outpath)
+        while True:
+            try:
+                print()
+                wget_download_with_timeout(input_url,outpath)
+                print()
+                time.sleep(1)
+                break
+            except:
+                print('\ntimeout reached, trying again!!')
+
 
     if return_filename:
         return filename
@@ -155,9 +174,11 @@ def download_file_from_url(input_url,outfolder=constants.temp_files_outdir,retur
         return outpath
 
 
-@timeout(300)
+@timeout(default_timeout)
 def wget_download_with_timeout(input_url,outpath):
     wget_download(input_url,outpath)
+
+
 
 
 

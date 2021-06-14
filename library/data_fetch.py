@@ -226,6 +226,8 @@ class imagery_fetcher:
 
         if source_type == 'txt_list':
             # select only the entries that are actual images, not auxiliary files
+            self.link_list = []
+            self.link_list = None # TO AVOID THAT UGLY BUG
             self.link_list = bf.select_entries_with_extension(bf.txt_from_url_to_list(source_url),extension)
 
             # remove that xml
@@ -364,7 +366,7 @@ class imagery_fetcher:
             while True:
                 try:
                     print()
-                    img_outpath = bf.download_file_from_url(image_url,return_filename=False,timeout=True)
+                    img_outpath = bf.download_file_from_url(image_url,return_filename=False,timeout=True,filename_preffix=self.name)
                     self.downloaded_images[image_url] = img_outpath
                     break
                 except:

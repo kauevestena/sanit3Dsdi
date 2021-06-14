@@ -58,3 +58,14 @@ redraw_if_imagery_changed_alone = False
 
 # default wgs84 bounding box key:
 wgs84bboxkey = 'wgs84_bounding_box'
+
+
+# a small area bounding boxes to render a small area
+# go to https://boundingbox.klokantech.com/ to get bouding box in wkt
+smal_bbox_csv = '-40.3397827083,-20.3214263926,-40.3353356058,-20.3176282943'
+lgt_min = -40.3397827083
+lgt_max = -40.3353356058
+lat_min = -20.3214263926
+lat_max = -20.3176282943
+smal_bbox_wkt = 'POLYGON((-40.3397827083 -20.3176282943, -40.3353356058 -20.3176282943, -40.3353356058 -20.3214263926, -40.3397827083 -20.3214263926, -40.3397827083 -20.3176282943))'
+

@@ -1,0 +1,6 @@
+/home/kaue/data/sanit3d_out/temporary/DSM_35_776.img
+/home/kaue/data/sanit3d_out/temporary/DSM_35_777.img
+/home/kaue/data/sanit3d_out/temporary/DSM_36_776.img
+/home/kaue/data/sanit3d_out/temporary/DSM_36_777.img
+/home/kaue/data/sanit3d_out/temporary/DSM_37_776.img
+/home/kaue/data/sanit3d_out/temporary/DSM_37_777.img
