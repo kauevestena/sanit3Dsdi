@@ -1,0 +1,7 @@
+{
+"type": "FeatureCollection",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::31984" } },
+"features": [
+{ "type": "Feature", "properties": { "id": "asb_cesan_red_recalq_esgo_1712_1.270", "fid": 269, "OBJECTID": 157, "DIAMETRO": "250", "SITUACAO": "CONFIRMADO", "MATERIAL": "FOFO", "name": "bbox" }, "geometry": { "type": "LineString", "coordinates": [ [ 360127.07654872367857, 7752574.973853854462504 ], [ 360209.0613, 7752597.85010000038892 ], [ 360216.469700000016019, 7752617.561499999836087 ], [ 360198.901100000017323, 7752640.481800000183284 ] ] } }
+]
+}
