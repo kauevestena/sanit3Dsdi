@@ -1,3 +1,36 @@
 # codes for metropolitan area:
 metrop_codes = {'Metropolitana': ['3202405','3205101','3201308','3205200','3202207','3205002','3205309']}
 
+
+# the points
+p1 = np.array([1,1,1])
+p2 = np.array([5,5,5])
+
+difV = p2-p1
+
+difV_normalized = normalize_vec(difV)
+
+plane1_normal = difV_normalized
+
+plane_p1 = plane_as_4vec(difV_normalized,p1)
+
+point_plane_p1 = pt_onplane(plane_p1,p1[0]+1,p1[1]-1)
+
+vec1_paralelplane = point_plane_p1 - p1
+
+vec1_paralelplane = normalize_vec(vec1_paralelplane)
+
+vec2_paralelplane = np.cross(vec1_paralelplane,plane1_normal)
+
+vec2_paralelplane = normalize_vec(vec2_paralelplane)
+
+circle1 = circumference_3D(p1,10,vec1_paralelplane,vec2_paralelplane)
+
+# for point in circle1:
+#     print(np.dot(point-p1,difV))
+#     print(np.linalg.norm(point-p1))
+#     print()
+
+# print(vec1_paralelplane)
+# print(vec2_paralelplane)
+# print(np.dot(vec1_paralelplane,vec2_paralelplane))

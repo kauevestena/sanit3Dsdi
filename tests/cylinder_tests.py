@@ -1,4 +1,3 @@
-from typing_extensions import Concatenate
 import numpy as np
 
 
@@ -31,7 +30,7 @@ def plane_as_4vec(normal:np.array,pt_onplane:np.array):
         - point on plane
     '''
     return np.array([*normal,-np.dot(normal,pt_onplane)])
-        
+
 def pt_onplane(plane4vec,X,Y):
     # plane equation, with z=f(X,Y)
 
@@ -75,14 +74,14 @@ class cylinder3D:
         self.p_1 = p1
         self.p_2 = p2
         self.number_of_points = points_per_circle*2
-        self.half_points = points_per_circle
+        self.circle_points_n = points_per_circle
 
 
         # the axis of the cylinder, is the difference vector:
         self.axis = p2 - p1
         # its normalized version will be used as the plane normal
         self.plane_n = normalize_vec(self.axis)
-        # the plane as a 4 vec of parameters: [a,b,c,d] 
+        # the plane as a 4 vec of parameters: [a,b,c,d]
         plane = plane_as_4vec(self.plane_n,p1)
         # any point on the plane
         point_on_plane = pt_onplane(plane,p1[0]+0.1*p1[0],p1[1]-0.1*p1[1])
@@ -102,6 +101,7 @@ class cylinder3D:
         self.circle2 = self.circle1 + self.axis
 
 
+
     def check_circles(self):
         centers = (self.p_1,self.p_2)
 
@@ -111,11 +111,155 @@ class cylinder3D:
                 print(np.dot(point-centers[i],self.axis))
                 print(np.linalg.norm(point-centers[i]))
 
-    def get_vertices_list(self):
 
-        # justaposed = np.concatenate((self.c1,self.c2))
+    def get_vertices_list(self,as_list=False):
 
-        return list(map(list,self.c1)) + list(map(list,self.c2))
+        self.justaposed = np.concatenate((self.circle1,self.circle2))
+
+        self.mins = np.min(self.justaposed,axis=0)
+        self.maxs = np.max(self.justaposed,axis=0)
+
+
+        if as_list:
+            return list(map(list,self.justaposed))
+        else:
+            return self.justaposed
+
+
+    def boundaries_list(self,new_zero=0):
+        # first the two circles boundaries
+        zero = new_zero
+
+        # first circle ending:
+        fce = zero + self.circle_points_n
+
+        c1 = [list(range(zero,fce))]
+        c2 = [list(range(fce,fce+self.circle_points_n))]
+
+        # for the rest of the faces:
+        rectangles = []
+
+        for i in range(zero,fce,2):
+            p0 = i
+            p1 = i + fce
+            p2 = i + fce + 1
+            p3 = i + 1
+
+            # the current face
+            curr = [[p0,p1,p2,p3]]
+
+            rectangles.append(curr)
+
+        res_list = []
+
+        res_list.append(c1)
+        res_list.append(c2)
+        res_list.append(rectangles)
+
+        self.boundaries = res_list
+
+        return res_list
+
+
+    def as_city_object(self,attrs_dict):
+
+        # cyty_obj = {name: {
+        #                 "geometry": [
+        #                 {
+        #                     "boundaries": [],
+        #                     "lod": 1,
+        #                     "type": "Solid"
+        #                 }
+        #                 ],
+        #                 "attributes": {
+        #                 },
+        #                 "type": "GenericCityObject"
+        #             }}
+
+        # cyty_obj[name]['geometry'][0]['boundaries'].append(self.boundaries)
+        # cyty_obj[name]['attributes'] = attrs_dict
+
+        cyty_obj = {
+                        "geometry": [
+                        {
+                            "boundaries": [],
+                            "lod": 1,
+                            "type": "Solid"
+                        }
+                        ],
+                        "attributes": {
+                        },
+                        "type": "GenericCityObject"
+                    }
+
+        cyty_obj['geometry'][0]['boundaries'].append(self.boundaries)
+        cyty_obj['attributes'] = attrs_dict
+
+
+##### OUR BIG CLASS:
+class city_json_simple:
+    base = {
+            "CityObjects": {},
+            "type": "CityJSON",
+            "version": "1.0",
+            "vertices": [],
+            "metadata": {
+            "geographicalExtent": [
+            ]}}
+
+    mins = []
+    maxs = []
+
+    point_list = []
+
+    def __init__(self,axis_vertex_list,radii_list,attrs_list,pts_per_cicle=32):
+
+        # first we will check if two list are equally-sized
+        # thx: https://stackoverflow.com/a/16720915/4436950
+
+        ref_len = len(axis_vertex_list)
+        if all(len(lst) == ref_len for lst in [radii_list,attrs_list]):
+
+            for i,pointpair in enumerate(axis_vertex_list):
+
+                name = f't{i}'
+
+                p1 = pointpair[0]
+                p2 = pointpair[2]
+
+                zero = i * 2 * pts_per_cicle
+
+                cylinder = cylinder3D(p1,p2,radii_list[i],pts_per_cicle)
+                self.point_list.append(cylinder.get_vertices_list())
+                boundaries = cylinder.boundaries_list(zero)
+                self.base['CityObjects'][name] = cylinder.as_city_object(attrs_list[i])
+
+                self.mins.append(cylinder.mins)
+                self.maxs.append(cylinder.maxs)
+
+                del cylinder
+
+            abs_max = np.max(np.array(self.maxs),axis=0)
+            abs_min = np.min(np.array(self.mins),axis=0)
+
+            bbox = [*abs_min,*abs_max]
+
+            
+
+
+            
+
+
+
+
+
+
+        else:
+            print('input lists are in different sizes, check your data!!!')
+
+
+
+
 
 
 
@@ -128,37 +272,14 @@ class cylinder3D:
 p1 = np.array([1,1,1])
 p2 = np.array([5,5,5])
 
-difV = p2-p1
-
-difV_normalized = normalize_vec(difV)
-
-plane1_normal = difV_normalized
-
-plane_p1 = plane_as_4vec(difV_normalized,p1)
-
-point_plane_p1 = pt_onplane(plane_p1,p1[0]+1,p1[1]-1)
-
-vec1_paralelplane = point_plane_p1 - p1
-
-vec1_paralelplane = normalize_vec(vec1_paralelplane)
-
-vec2_paralelplane = np.cross(vec1_paralelplane,plane1_normal)
-
-vec2_paralelplane = normalize_vec(vec2_paralelplane)
-
-circle1 = circumference_3D(p1,10,vec1_paralelplane,vec2_paralelplane)
-
-# for point in circle1:
-#     print(np.dot(point-p1,difV))
-#     print(np.linalg.norm(point-p1))
-#     print()
-
-# print(vec1_paralelplane)
-# print(vec2_paralelplane)
-# print(np.dot(vec1_paralelplane,vec2_paralelplane))
-
-
 c1 = cylinder3D(p1,p2,10)
 
-print(c1.get_vertices_list())
+p_list = c1.get_vertices_list(False)
 
+v_list = c1.boundaries_list(64)
+
+print(v_list[0])
+
+print(c1.maxs)
+print(c1.mins)
+print(c1.justaposed)
