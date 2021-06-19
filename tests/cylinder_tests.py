@@ -1,5 +1,5 @@
 import numpy as np
-
+import json
 
 # normalized_v = v/np.linalg.norm(v)
 
@@ -33,10 +33,19 @@ def plane_as_4vec(normal:np.array,pt_onplane:np.array):
 
 def pt_onplane(plane4vec,X,Y):
     # plane equation, with z=f(X,Y)
+    if not plane4vec[2] < 0.0001:
 
-    Z = - (plane4vec[0]*X+plane4vec[1]*Y+plane4vec[3])/plane4vec[2]
+        Z = - (plane4vec[0]*X+plane4vec[1]*Y+plane4vec[3])/plane4vec[2]
 
-    return np.array([X,Y,Z])
+        return np.array([X,Y,Z])
+
+    else:
+        Z = X + 0.1*X
+
+        Y = - - (plane4vec[0]*X+plane4vec[2]*Z+plane4vec[3])/plane4vec[1]
+
+        return np.array([X,Y,Z])
+
 
 def gdec2rad(gdec):
     return gdec * np.pi/180
@@ -153,8 +162,9 @@ class cylinder3D:
         res_list = []
 
         res_list.append(c1)
-        res_list.append(c2)
         res_list.append(rectangles)
+        res_list.append(c2)
+
 
         self.boundaries = res_list
 
@@ -163,7 +173,7 @@ class cylinder3D:
 
     def as_city_object(self,attrs_dict):
 
-        # cyty_obj = {name: {
+        # city_obj = {name: {
         #                 "geometry": [
         #                 {
         #                     "boundaries": [],
@@ -176,10 +186,10 @@ class cylinder3D:
         #                 "type": "GenericCityObject"
         #             }}
 
-        # cyty_obj[name]['geometry'][0]['boundaries'].append(self.boundaries)
-        # cyty_obj[name]['attributes'] = attrs_dict
+        # city_obj[name]['geometry'][0]['boundaries'].append(self.boundaries)
+        # city_obj[name]['attributes'] = attrs_dict
 
-        cyty_obj = {
+        city_obj = {
                         "geometry": [
                         {
                             "boundaries": [],
@@ -192,20 +202,27 @@ class cylinder3D:
                         "type": "GenericCityObject"
                     }
 
-        cyty_obj['geometry'][0]['boundaries'].append(self.boundaries)
-        cyty_obj['attributes'] = attrs_dict
+
+        city_obj['geometry'][0]['boundaries'].append(self.boundaries)
+
+        city_obj['attributes'] = attrs_dict
+
+        return city_obj
 
 
 ##### OUR BIG CLASS:
 class city_json_simple:
     base = {
-            "CityObjects": {},
             "type": "CityJSON",
             "version": "1.0",
+            "CityObjects": {},
             "vertices": [],
             "metadata": {
             "geographicalExtent": [
             ]}}
+
+# cjio validation: 
+# cjio our_test_cylinder.json validate --long > test_cylinder_report.txt
 
     mins = []
     maxs = []
@@ -221,17 +238,19 @@ class city_json_simple:
         if all(len(lst) == ref_len for lst in [radii_list,attrs_list]):
 
             for i,pointpair in enumerate(axis_vertex_list):
+                print('processing segment ',i,' of ',ref_len,' segments')
 
                 name = f't{i}'
 
                 p1 = pointpair[0]
-                p2 = pointpair[2]
+                p2 = pointpair[1]
 
                 zero = i * 2 * pts_per_cicle
 
                 cylinder = cylinder3D(p1,p2,radii_list[i],pts_per_cicle)
-                self.point_list.append(cylinder.get_vertices_list())
+                self.point_list.append(cylinder.get_vertices_list(True))
                 boundaries = cylinder.boundaries_list(zero)
+
                 self.base['CityObjects'][name] = cylinder.as_city_object(attrs_list[i])
 
                 self.mins.append(cylinder.mins)
@@ -244,18 +263,28 @@ class city_json_simple:
 
             bbox = [*abs_min,*abs_max]
 
-            
+            # filling the bounding box:
+            self.base['metadata']['geographicalExtent'] = bbox
 
+            # filling the vertices:
+            # self.base['vertices'] = list(map(list,self.point_list))
 
-            
+            for i,point in enumerate(self.point_list[0]):
+                self.base['vertices'].append(point)
 
+            # self.base['vertices'] = [[point.tolist()] for point in self.point_list]
 
-
-
+            # self.plist = [[point] for point in self.point_list]
 
 
         else:
             print('input lists are in different sizes, check your data!!!')
+
+
+    def dump_to_file(self,outpath):
+
+        with open(outpath,'w+') as writer:
+            json.dump(self.base,writer,indent=2)
 
 
 
@@ -271,15 +300,27 @@ class city_json_simple:
 # the points
 p1 = np.array([1,1,1])
 p2 = np.array([5,5,5])
+p3 = np.array([6,7,6])
 
-c1 = cylinder3D(p1,p2,10)
+# c1 = cylinder3D(p1,p2,10)
 
-p_list = c1.get_vertices_list(False)
+# p_list = c1.get_vertices_list(False)
 
-v_list = c1.boundaries_list(64)
+# v_list = c1.boundaries_list(64)
 
-print(v_list[0])
+# print(v_list[0])
 
-print(c1.maxs)
-print(c1.mins)
-print(c1.justaposed)
+# print(c1.maxs)
+# print(c1.mins)
+# print(c1.justaposed)
+
+lines_list = [(p1,p2)]
+radius_list = [5]
+attrs_list = [{"function": "something"}]
+
+builder = city_json_simple(lines_list,radius_list,attrs_list,8)
+
+# print(builder.base)
+
+
+builder.dump_to_file('our_test_cylinder.json')
