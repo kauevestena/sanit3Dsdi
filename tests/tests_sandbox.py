@@ -42,11 +42,21 @@
 
 # print(a)
 
-import numpy as np
+# import numpy as np
 
 
-a = np.array([1,2,3])
+# a = np.array([1,2,3])
 
-b = [a,a,a]
+# b = [a,a,a]
 
-print(list(map(list,np.array(b))))
+# print(list(map(list,np.array(b))))
+
+def reverse_order_list(a,b):
+    l1 = list(range(-a+1,-b+1))
+
+    return list(map(abs,l1))
+
+print(reverse_order_list(8,4))
+
+
+

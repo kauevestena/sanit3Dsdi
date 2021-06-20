@@ -1,3 +1,4 @@
+from os import removexattr
 import numpy as np
 import json
 
@@ -72,6 +73,11 @@ def circumference_3D(center_pt,radius,v1,v2,n_points=32):
 
     return np.array(point_list)
 
+def reverse_order_rangelist(a,b):
+    l1 = list(range(-a+1,-b+1))
+
+    return list(map(abs,l1))
+
 
 class cylinder3D:
     '''
@@ -143,28 +149,41 @@ class cylinder3D:
         fce = zero + self.circle_points_n
 
         c1 = [list(range(zero,fce))]
-        c2 = [list(range(fce,fce+self.circle_points_n))]
+        # c2 = [list(range(fce,fce+self.circle_points_n))]
+
+        c2 = [reverse_order_rangelist(fce+self.circle_points_n,fce)]
 
         # for the rest of the faces:
         rectangles = []
 
-        for i in range(zero,fce,2):
+        for i in range(zero,fce):
+            print(i,fce)
             p0 = i
             p1 = i + fce
-            p2 = i + fce + 1
-            p3 = i + 1
+            if i+1 == fce:
+                p2 = fce
+                p3 = zero
+            else:
+                p2 = i + fce + 1
+                p3 = i + 1
 
             # the current face
-            curr = [[p0,p1,p2,p3]]
+            curr = [[p3,p0,p1,p2]]
 
             rectangles.append(curr)
 
-        res_list = []
+        # rectangles.append(rectangles[0])
+        # rectangles.pop(0)
 
-        res_list.append(c1)
-        res_list.append(rectangles)
-        res_list.append(c2)
+        # print(rectangles)
 
+        # res_list = []
+
+        # res_list.append(c1)
+        # res_list.append(rectangles)
+        # res_list.append(c2)
+        
+        res_list = [c1,rectangles,c2]
 
         self.boundaries = res_list
 
@@ -194,7 +213,7 @@ class cylinder3D:
                         {
                             "boundaries": [],
                             "lod": 1,
-                            "type": "Solid"
+                            "type": "MultiSurface"
                         }
                         ],
                         "attributes": {
@@ -203,7 +222,9 @@ class cylinder3D:
                     }
 
 
-        city_obj['geometry'][0]['boundaries'].append(self.boundaries)
+        # city_obj['geometry'][0]['boundaries'].append(self.boundaries)
+        city_obj['geometry'][0]['boundaries'] = self.boundaries
+
 
         city_obj['attributes'] = attrs_dict
 
@@ -299,7 +320,7 @@ class city_json_simple:
 
 # the points
 p1 = np.array([1,1,1])
-p2 = np.array([5,5,5])
+p2 = np.array([5,5,1])
 p3 = np.array([6,7,6])
 
 # c1 = cylinder3D(p1,p2,10)
@@ -315,10 +336,10 @@ p3 = np.array([6,7,6])
 # print(c1.justaposed)
 
 lines_list = [(p1,p2)]
-radius_list = [5]
+radius_list = [1]
 attrs_list = [{"function": "something"}]
 
-builder = city_json_simple(lines_list,radius_list,attrs_list,8)
+builder = city_json_simple(lines_list,radius_list,attrs_list,4)
 
 # print(builder.base)
 
