@@ -1,0 +1,31 @@
+# run with: 
+# 3dfier a3dfier_example.yml --CityJSON buildings_3dfier.json --CityGML buildings_3dfier.gml
+input_polygons:
+  - datasets: 
+    - clipped_31984_with_id.shp
+    uniqueid: id
+    lifting: Building
+  - datasets: 
+    - ground_pol_31984.geojson
+    uniqueid: id
+    lifting: Terrain
+
+lifting_options:
+  Building:
+    roof:
+        height: percentile-90
+    ground:
+        height: percentile-10
+        use_LAS_classes:
+          - 2
+          - 0
+  Terrain:
+    height: percentile-90
+    simplification: 0
+    simplification_tinsimp: 0.1
+    use_LAS_classes:
+      - 2
+
+input_elevation:
+  - datasets:
+    - sample_las.las

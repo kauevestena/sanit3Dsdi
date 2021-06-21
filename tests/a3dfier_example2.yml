@@ -1,0 +1,85 @@
+# run with: 
+# 3dfier a3dfier_example.yml --CityJSON buildings_3dfier.json 
+
+input_polygons:
+  - datasets:
+      - /data/campus/partof.shp
+    uniqueid: FACE_ID
+    lifting: Building
+  - datasets:
+      - /data/campus/another.gml
+    lifting_per_layer:
+      Gebouw: Building
+      Terrein: Terrain
+      Waterdeel: Water
+  - datasets:
+      - /data/bgt_overbruggingsdeel.sqlite
+    height_field: relatievehoogteligging
+    handle_multiple_heights: true
+
+lifting_options:
+  Building:
+    roof:
+      height: percentile-90
+      use_LAS_classes:
+        - 6
+    ground:
+      height: percentile-10
+      use_LAS_classes:
+        - 2
+        - 9
+    lod: 1
+    floor: true
+    inner_walls: true
+    triangulate: false
+  Water:
+    height: percentile-10
+    use_LAS_classes_within:
+      - 2
+      - 9
+  Road:
+    height: percentile-50
+    filter_outliers: true
+    flatten: true
+    use_LAS_classes:
+      - 2
+    use_LAS_classes_within:
+      - 17
+  Separation:
+    height: percentile-80
+    use_LAS_classes:
+      - 2
+      - 17
+  Bridge/Overpass:
+    height: percentile-50
+    flatten: true
+    use_LAS_classes_within:
+      - 17
+  Terrain:
+    simplification: 0
+    simplification_tinsimp: 0.1
+    use_LAS_classes:
+      - 2
+      - 9
+  Forest:
+    simplification: 0
+    simplification_tinsimp: 0.1
+    use_LAS_classes:
+      - 2
+      - 9
+
+input_elevation:
+  - datasets:
+    - /data/top10nl/schie/ahn3.laz
+  omit_LAS_classes:
+    - 1 # unclassified
+    - 3 # vegation
+    - 4 # vegation
+    - 5 # vegation 
+  thinning: 1
+
+options:
+  building_radius_vertex_elevation: 3.0
+  radius_vertex_elevation: 1.0
+  threshold_jump_edges: 0.5
+  threshold_bridge_jump_edges: 0.5
