@@ -14,13 +14,15 @@ lifting_options:
   Building:
     roof:
         height: percentile-90
+        use_LAS_classes:
+          - 0
     ground:
         height: percentile-10
         use_LAS_classes:
           - 2
           - 0
   Terrain:
-    height: percentile-90
+    height: percentile-100
     simplification: 0
     simplification_tinsimp: 0.1
     use_LAS_classes:
