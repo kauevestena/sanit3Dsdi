@@ -6,7 +6,8 @@
     the original study case are from the municipality of Vitoria-ES (BR)
 """
 
-
+# the coordinate reference system for the project as EPSG code:
+epsg_crs = 31984
 
 # url for the Vector data, in study-case it is from Geobases
 wfs_url = "https://ide.geobases.es.gov.br/geoserver/geonode/wfs"
