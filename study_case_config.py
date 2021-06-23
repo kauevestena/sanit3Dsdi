@@ -7,7 +7,10 @@
 """
 
 # the coordinate reference system for the project as EPSG code:
-epsg_crs = 31984
+horizontal_epsg_crs = 31984
+
+# generally EPSG 4979 is for height above ellipsoid (3D version of 4326)
+height_epsg_crs = 4979
 
 # url for the Vector data, in study-case it is from Geobases
 wfs_url = "https://ide.geobases.es.gov.br/geoserver/geonode/wfs"
