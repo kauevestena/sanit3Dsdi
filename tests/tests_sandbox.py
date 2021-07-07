@@ -6,11 +6,8 @@ import numpy as np
 
 # print(a)
 
-a = np.array([[1,2,3],[4,5,6],[7,8,9]])
+a = np.array([[1,2,3],[4,5,6],[7,8,9]],dtype='float64')
 
-number_of_points = a.shape[0]
+b = []
 
-
-for i,point in enumerate(a):
-    if (i > 0) and (i < (number_of_points - 1)):
-        print(i)
+print(a)

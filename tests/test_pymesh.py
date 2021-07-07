@@ -20,7 +20,7 @@ def create_edgeslist(num_vertices,as_np=True):
 
 
 #                        0       1      2         3      4       5
-vertices = np.array([[1, 1,1],[2,1,1],[2,2,1],[2,1,2],[1,1,2],[2,1,3]]) * 10
+vertices = np.array([[1, 1,1],[2,1,1],[2,2,1],[2,1,2],[1,1,2],[2,1,3]],dtype='float64') * 10
 
 # edges = np.array([[0, 1],[1,2],[3,4],[4,5]])
 
@@ -114,7 +114,6 @@ def one_pipe_making(pointlist,diameter,thickness,extra_safe_percent=0.05,joint_a
         # calculating the joint spheres:
         # first and last points does not have any joint
         if (i > 0) and (i < (number_of_points - 1)):
-            print(i)
 
             joint_sphere = pymesh.generate_icosphere(inner_radius_sphere,point,refinement_order=2)
 
@@ -145,19 +144,26 @@ def one_pipe_making(pointlist,diameter,thickness,extra_safe_percent=0.05,joint_a
 
             inner_pipe = pymesh.generate_cylinder(p0=point, p1=p2, r0=inner_radius, r1=inner_radius, num_segments=32)
 
-            inner_geometries.append(joint_sphere)
+            inner_geometries.append(inner_pipe)
 
         # now the  inner and outer trees for combinations
 
-        inner_tree = pymesh.CSGTree({"union": [{"mesh": pipe1}]})
+        innerlist = [{'mesh':geometry} for geometry in inner_geometries]
 
-        outer_tree = pymesh.CSGTree({"union": [{"mesh": pipe1_outer}]})
+        outerlist = [{'mesh':geometry} for geometry in outer_geometries]
+
+        inner_tree = pymesh.CSGTree({"union": innerlist})
+
+        outer_tree = pymesh.CSGTree({"union": outerlist})
 
         pipe_tree = pymesh.CSGTree({"difference": [outer_tree, inner_tree]})
 
+        return pipe_tree.mesh
 
 
 
 
 
-one_pipe_making(vertices,1,0.01)
+
+test_pipe = one_pipe_making(vertices,1,0.01)
+pymesh.save_mesh('pipes.obj',test_pipe)
