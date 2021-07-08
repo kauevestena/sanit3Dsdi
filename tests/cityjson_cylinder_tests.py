@@ -204,164 +204,164 @@ def city_object_dict(faces,attrs_dict):
 
 
 
-class cylinder3D:
-    '''
-        DEPRECATED BY 
+# # class cylinder3D:
+# #     '''
+# #         DEPRECATED BY 
 
-        pymesh_cylinder(vertices,radius,num_edges=16,tol_for_simplification=None)
-
-
-        manteined only because I don't wanna delete it
+# #         pymesh_cylinder(vertices,radius,num_edges=16,tol_for_simplification=None)
 
 
-        class to implement a cylinder in 3D to use it in cityjson
-    '''
-
-    def __init__(self,p1,p2,radius,points_per_circle=32):
-        # first, its handy:
-        self.p_1 = p1
-        self.p_2 = p2
-        self.number_of_points = points_per_circle*2
-        self.circle_points_n = points_per_circle
+# #         manteined only because I don't wanna delete it
 
 
-        # the axis of the cylinder, is the difference vector:
-        self.axis = p2 - p1
-        # its normalized version will be used as the plane normal
-        self.plane_n = normalize_vec(self.axis)
-        # the plane as a 4 vec of parameters: [a,b,c,d]
-        plane = plane_as_4vec(self.plane_n,p1)
-        # any point on the plane
-        point_on_plane = pt_onplane(plane,p1[0]+0.1*p1[0],p1[1]-0.1*p1[1])
-        # first vector parallel to the plane containing the circle
-        vec1_planeparalel = normalize_vec(point_on_plane-p1)
-        # second vector parallel to the plane containing the circle
-        vec2_planeparalel = normalize_vec(np.cross(vec1_planeparalel,self.plane_n))
-        # first circumference
+# #         class to implement a cylinder in 3D to use it in cityjson
+# #     '''
 
-        # it must needs to be divisible by 4
-        if points_per_circle % 4 != 0:
-            points_per_circle = (points_per_circle // 4) * 4
-
-        # the first circumference
-        self.circle1 = circumference_3D(p1,radius,vec1_planeparalel,vec2_planeparalel,points_per_circle)
-        # the second contains basically each point summed up with the axis
-        self.circle2 = self.circle1 + self.axis
+# #     def __init__(self,p1,p2,radius,points_per_circle=32):
+# #         # first, its handy:
+# #         self.p_1 = p1
+# #         self.p_2 = p2
+# #         self.number_of_points = points_per_circle*2
+# #         self.circle_points_n = points_per_circle
 
 
+# #         # the axis of the cylinder, is the difference vector:
+# #         self.axis = p2 - p1
+# #         # its normalized version will be used as the plane normal
+# #         self.plane_n = normalize_vec(self.axis)
+# #         # the plane as a 4 vec of parameters: [a,b,c,d]
+# #         plane = plane_as_4vec(self.plane_n,p1)
+# #         # any point on the plane
+# #         point_on_plane = pt_onplane(plane,p1[0]+0.1*p1[0],p1[1]-0.1*p1[1])
+# #         # first vector parallel to the plane containing the circle
+# #         vec1_planeparalel = normalize_vec(point_on_plane-p1)
+# #         # second vector parallel to the plane containing the circle
+# #         vec2_planeparalel = normalize_vec(np.cross(vec1_planeparalel,self.plane_n))
+# #         # first circumference
 
-    def check_circles(self):
-        centers = (self.p_1,self.p_2)
+# #         # it must needs to be divisible by 4
+# #         if points_per_circle % 4 != 0:
+# #             points_per_circle = (points_per_circle // 4) * 4
 
-        for i,circle in enumerate((self.circle1,self.circle2)):
-            print('\ncircle ',i+1,':')
-            for point in circle:
-                print(np.dot(point-centers[i],self.axis))
-                print(np.linalg.norm(point-centers[i]))
-
-
-    def get_vertices_list(self,as_list=False):
-
-        self.justaposed = np.concatenate((self.circle1,self.circle2))
-
-        self.mins = np.min(self.justaposed,axis=0)
-        self.maxs = np.max(self.justaposed,axis=0)
+# #         # the first circumference
+# #         self.circle1 = circumference_3D(p1,radius,vec1_planeparalel,vec2_planeparalel,points_per_circle)
+# #         # the second contains basically each point summed up with the axis
+# #         self.circle2 = self.circle1 + self.axis
 
 
-        if as_list:
-            return list(map(list,self.justaposed))
-        else:
-            return self.justaposed
+
+# #     def check_circles(self):
+# #         centers = (self.p_1,self.p_2)
+
+# #         for i,circle in enumerate((self.circle1,self.circle2)):
+# #             print('\ncircle ',i+1,':')
+# #             for point in circle:
+# #                 print(np.dot(point-centers[i],self.axis))
+# #                 print(np.linalg.norm(point-centers[i]))
 
 
-    def boundaries_list(self,new_zero=0):
-        # first the two circles boundaries
-        zero = new_zero
+# #     def get_vertices_list(self,as_list=False):
 
-        # first circle ending:
-        fce = zero + self.circle_points_n
+# #         self.justaposed = np.concatenate((self.circle1,self.circle2))
 
-        c1 = [list(range(zero,fce))]
-        # c2 = [list(range(fce,fce+self.circle_points_n))]
+# #         self.mins = np.min(self.justaposed,axis=0)
+# #         self.maxs = np.max(self.justaposed,axis=0)
 
-        c2 = [reverse_order_rangelist(fce+self.circle_points_n,fce)]
 
-        # for the rest of the faces:
-        rectangles = []
+# #         if as_list:
+# #             return list(map(list,self.justaposed))
+# #         else:
+# #             return self.justaposed
 
-        for i in range(zero,fce):
-            print(i,fce)
-            p0 = i
-            p1 = i + fce
-            if i+1 == fce:
-                p2 = fce
-                p3 = zero
-            else:
-                p2 = i + fce + 1
-                p3 = i + 1
 
-            # the current face
-            curr = [[p3,p0,p1,p2]]
+# #     def boundaries_list(self,new_zero=0):
+# #         # first the two circles boundaries
+# #         zero = new_zero
 
-            rectangles.append(curr)
+# #         # first circle ending:
+# #         fce = zero + self.circle_points_n
 
-        # rectangles.append(rectangles[0])
-        # rectangles.pop(0)
+# #         c1 = [list(range(zero,fce))]
+# #         # c2 = [list(range(fce,fce+self.circle_points_n))]
 
-        # print(rectangles)
+# #         c2 = [reverse_order_rangelist(fce+self.circle_points_n,fce)]
 
-        # res_list = []
+# #         # for the rest of the faces:
+# #         rectangles = []
 
-        # res_list.append(c1)
-        # res_list.append(rectangles)
-        # res_list.append(c2)
+# #         for i in range(zero,fce):
+# #             print(i,fce)
+# #             p0 = i
+# #             p1 = i + fce
+# #             if i+1 == fce:
+# #                 p2 = fce
+# #                 p3 = zero
+# #             else:
+# #                 p2 = i + fce + 1
+# #                 p3 = i + 1
+
+# #             # the current face
+# #             curr = [[p3,p0,p1,p2]]
+
+# #             rectangles.append(curr)
+
+# #         # rectangles.append(rectangles[0])
+# #         # rectangles.pop(0)
+
+# #         # print(rectangles)
+
+# #         # res_list = []
+
+# #         # res_list.append(c1)
+# #         # res_list.append(rectangles)
+# #         # res_list.append(c2)
         
-        res_list = [c1,rectangles,c2]
+# #         res_list = [c1,rectangles,c2]
 
-        self.boundaries = res_list
+# #         self.boundaries = res_list
 
-        return res_list
-
-
-    def as_city_object(self,attrs_dict):
-
-        # city_obj = {name: {
-        #                 "geometry": [
-        #                 {
-        #                     "boundaries": [],
-        #                     "lod": 1,
-        #                     "type": "Solid"
-        #                 }
-        #                 ],
-        #                 "attributes": {
-        #                 },
-        #                 "type": "GenericCityObject"
-        #             }}
-
-        # city_obj[name]['geometry'][0]['boundaries'].append(self.boundaries)
-        # city_obj[name]['attributes'] = attrs_dict
-
-        city_obj = {
-                        "geometry": [
-                        {
-                            "boundaries": [],
-                            "lod": 1,
-                            "type": "MultiSurface"
-                        }
-                        ],
-                        "attributes": {
-                        },
-                        "type": "GenericCityObject"
-                    }
+# #         return res_list
 
 
-        # city_obj['geometry'][0]['boundaries'].append(self.boundaries)
-        city_obj['geometry'][0]['boundaries'] = self.boundaries
+# #     def as_city_object(self,attrs_dict):
+
+# #         # city_obj = {name: {
+# #         #                 "geometry": [
+# #         #                 {
+# #         #                     "boundaries": [],
+# #         #                     "lod": 1,
+# #         #                     "type": "Solid"
+# #         #                 }
+# #         #                 ],
+# #         #                 "attributes": {
+# #         #                 },
+# #         #                 "type": "GenericCityObject"
+# #         #             }}
+
+# #         # city_obj[name]['geometry'][0]['boundaries'].append(self.boundaries)
+# #         # city_obj[name]['attributes'] = attrs_dict
+
+# #         city_obj = {
+# #                         "geometry": [
+# #                         {
+# #                             "boundaries": [],
+# #                             "lod": 1,
+# #                             "type": "MultiSurface"
+# #                         }
+# #                         ],
+# #                         "attributes": {
+# #                         },
+# #                         "type": "GenericCityObject"
+# #                     }
 
 
-        city_obj['attributes'] = attrs_dict
+# #         # city_obj['geometry'][0]['boundaries'].append(self.boundaries)
+# #         city_obj['geometry'][0]['boundaries'] = self.boundaries
 
-        return city_obj
+
+# #         city_obj['attributes'] = attrs_dict
+
+# #         return city_obj
 
 
 # # # # THIS WAS AN ATTEMPT, MANTEINED HERE

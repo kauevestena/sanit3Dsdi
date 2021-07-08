@@ -20,7 +20,7 @@ def create_edgeslist(num_vertices,as_np=True):
 
 
 #                        0       1      2         3      4       5
-vertices = np.array([[1, 1,1],[2,1,1],[2,2,1],[2,1,2],[1,1,2],[2,1,3]],dtype='float64') * 10
+vertices = np.array([[1, 1,1],[2,1,1],[2,2,1]],dtype='float64') * 10
 
 # edges = np.array([[0, 1],[1,2],[3,4],[4,5]])
 
@@ -93,13 +93,17 @@ pipe_tree = pymesh.CSGTree({"difference": [outer_tree, inner_tree]})
 pymesh.save_mesh('pipes.obj',pipe_tree.mesh)
 
 
-def one_pipe_making(pointlist,diameter,thickness,extra_safe_percent=0.05,joint_ampliation=0.01):
+# for i,point in enumerate(vertices):
+#     print(i,point)
+
+def one_pipe_making(pointlist,diameter,thickness,pipenumber=0,extra_safe_percent=0.05,joint_ampliation=0.01):
 
     # lists to store geometries
     inner_geometries = []
     outer_geometries = []
 
     number_of_points = pointlist.shape[0]
+
 
     # radius for inner and outer geometries
     outer_radius = diameter/2
@@ -110,6 +114,7 @@ def one_pipe_making(pointlist,diameter,thickness,extra_safe_percent=0.05,joint_a
     inner_radius_sphere = inner_radius + inner_radius * joint_ampliation
 
     for i,point in enumerate(pointlist):
+        print(i,point)
 
         # calculating the joint spheres:
         # first and last points does not have any joint
@@ -146,24 +151,56 @@ def one_pipe_making(pointlist,diameter,thickness,extra_safe_percent=0.05,joint_a
 
             inner_geometries.append(inner_pipe)
 
-        # now the  inner and outer trees for combinations
+    # now the  inner and outer trees for combinations
+    print('joining from geometries')
 
-        innerlist = [{'mesh':geometry} for geometry in inner_geometries]
+    innerlist = [{'mesh':geometry} for geometry in inner_geometries]
 
-        outerlist = [{'mesh':geometry} for geometry in outer_geometries]
+    outerlist = [{'mesh':geometry} for geometry in outer_geometries]
 
-        inner_tree = pymesh.CSGTree({"union": innerlist})
+    inner_tree = pymesh.CSGTree({"union": innerlist})
 
-        outer_tree = pymesh.CSGTree({"union": outerlist})
+    outer_tree = pymesh.CSGTree({"union": outerlist})
 
-        pipe_tree = pymesh.CSGTree({"difference": [outer_tree, inner_tree]})
+    pipe_tree = pymesh.CSGTree({"difference": [outer_tree, inner_tree]})
 
-        return pipe_tree.mesh
+    ret_mesh = pipe_tree.mesh
+
+    # we tried to add per mesh attibute, no sucess
+    # ret_mesh.add_attribute('number')
+    # vals = np.ones(ret_mesh.num_vertices) * pipenumber
+    # ret_mesh.set_attribute('number',vals)
+    print(ret_mesh.get_attribute_names())
+    print(ret_mesh.get_attribute('source'))
+
+    return ret_mesh
+
+def merge_meshlist(meshlist,print_info=True):
+
+    if print_info:
+        print('joining ',len(meshlist),' meshes')
+
+    mergelist = [{'mesh':geometry} for geometry in meshlist]
+
+    merging_tree = pymesh.CSGTree({"union": mergelist})
+
+    return merging_tree.mesh
 
 
 
 
+test_pipe1 = one_pipe_making(vertices,1,0.01,1)
+test_pipe2 = one_pipe_making(vertices+5,2,0.5,2)
+test_pipe3 = one_pipe_making(vertices+10,1.5,0.1,3)
+
+meshlist = [test_pipe1,test_pipe2,test_pipe3]
+
+test_pipe = merge_meshlist(meshlist)
+
+print(test_pipe.get_attribute_names())
+print(len(test_pipe.get_attribute('source').tolist()))
+print(test_pipe.num_faces)
 
 
-test_pipe = one_pipe_making(vertices,1,0.01)
-pymesh.save_mesh('pipes.obj',test_pipe)
+
+pymesh.save_mesh('pipes.ply',test_pipe, *test_pipe.get_attribute_names(), ascii=True)
