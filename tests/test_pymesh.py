@@ -1,4 +1,5 @@
 
+import enum
 import pymesh
 import numpy as np
 import json
@@ -137,14 +138,14 @@ def one_pipe_making(pointlist,diameter,thickness,pipenumber=0,extra_safe_percent
             outer_geometries.append(outer_pipe)
 
 
-            # we neeed to apply some safe margin, to avoid thin triangles 
+            # we neeed to apply some safe margin, to avoid thin triangles
             if i == 0: # b_a is vector from B to A
                 b_a = point - p2
                 point += b_a * extra_safe_percent
 
             if i == (number_of_points - 2):
-                a_b = p2 - point 
-            
+                a_b = p2 - point
+
                 p2 += a_b * extra_safe_percent
 
             inner_pipe = pymesh.generate_cylinder(p0=point, p1=p2, r0=inner_radius, r1=inner_radius, num_segments=32)
@@ -197,10 +198,31 @@ meshlist = [test_pipe1,test_pipe2,test_pipe3]
 
 test_pipe = merge_meshlist(meshlist)
 
-print(test_pipe.get_attribute_names())
-print(len(test_pipe.get_attribute('source').tolist()))
-print(test_pipe.num_faces)
+# print(test_pipe.get_attribute_names())
+# print(len(test_pipe.get_attribute('source').tolist()))
+# print(test_pipe.num_faces)
+
+src_mesh_list = test_pipe.get_attribute('source').astype(np.int_).tolist()
+
+max_mesh_index = max(src_mesh_list)
+
+meshindexlist = list(range(0,max_mesh_index+1))
+
+# print(src_mesh_list.index(1))
+
+# # for i,face in enumerate(test_pipe.faces):
+# #     print(face,int(src_mesh_list[i]))
+
+# dict comprehension, thx https://stackoverflow.com/a/44593994/4436950
+ind = {x: [i for i, value in enumerate(src_mesh_list) if value == x] for x in meshindexlist}
+
+# print(ind)
+
+edgeslist = []
+
+for i,faceindex in enumerate(ind[0]):
+    edgeslist.append([test_pipe.faces[faceindex].tolist()])
 
 
-
+print(edgeslist)
 pymesh.save_mesh('pipes.ply',test_pipe, *test_pipe.get_attribute_names(), ascii=True)

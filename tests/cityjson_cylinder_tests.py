@@ -6,16 +6,17 @@ from shapely.geometry import LineString
 import numpy as np
 import os
 import pymesh
-from copy import deepcopy
+# from copy import deepcopy
+import time
 
 # normalized_v = v/np.linalg.norm(v)
 
-def normalize_vec(input_vec):
-    try:
-        return input_vec/np.linalg.norm(input_vec)
-    except:
-        print(np.linalg.norm(input_vec),'check for zero norm')
-        return input_vec * 0
+# # def normalize_vec(input_vec):
+# #     try:
+# #         return input_vec/np.linalg.norm(input_vec)
+# #     except:
+# #         print(np.linalg.norm(input_vec),'check for zero norm')
+# #         return input_vec * 0
 
 # class plane:
 
@@ -29,60 +30,60 @@ def normalize_vec(input_vec):
 #     def a_point(self,X,Y,Z):
 #         return self.a*X + self.b*Y + self.c*Z + self.d
 
-def plane_as_4vec(normal:np.array,pt_onplane:np.array):
-    '''
-        plane as 4vec:
+# # def plane_as_4vec(normal:np.array,pt_onplane:np.array):
+# #     '''
+# #         plane as 4vec:
 
-        - normal vector
-        - point on plane
-    '''
-    return np.array([*normal,-np.dot(normal,pt_onplane)])
+# #         - normal vector
+# #         - point on plane
+# #     '''
+# #     return np.array([*normal,-np.dot(normal,pt_onplane)])
 
-def pt_onplane(plane4vec,X,Y):
-    # plane equation, with z=f(X,Y)
-    if not plane4vec[2] < 0.0001:
+# # def pt_onplane(plane4vec,X,Y):
+# #     # plane equation, with z=f(X,Y)
+# #     if not plane4vec[2] < 0.0001:
 
-        Z = - (plane4vec[0]*X+plane4vec[1]*Y+plane4vec[3])/plane4vec[2]
+# #         Z = - (plane4vec[0]*X+plane4vec[1]*Y+plane4vec[3])/plane4vec[2]
 
-        return np.array([X,Y,Z])
+# #         return np.array([X,Y,Z])
 
-    else:
-        Z = X + 0.1*X
+# #     else:
+# #         Z = X + 0.1*X
 
-        Y = - - (plane4vec[0]*X+plane4vec[2]*Z+plane4vec[3])/plane4vec[1]
+# #         Y = - - (plane4vec[0]*X+plane4vec[2]*Z+plane4vec[3])/plane4vec[1]
 
-        return np.array([X,Y,Z])
+# #         return np.array([X,Y,Z])
 
 
-def gdec2rad(gdec):
-    return gdec * np.pi/180
+# # def gdec2rad(gdec):
+# #     return gdec * np.pi/180
 
-def circumference_3D(center_pt,radius,v1,v2,n_points=32):
-    '''
-    a circunference in 3D:
+# # def circumference_3D(center_pt,radius,v1,v2,n_points=32):
+# #     '''
+# #     a circunference in 3D:
 
-    - Center Point
-    - The Radius
+# #     - Center Point
+# #     - The Radius
 
-    thx: https://math.stackexchange.com/a/1184089/307651
+# #     thx: https://math.stackexchange.com/a/1184089/307651
 
-    '''
+# #     '''
 
-    angles = np.linspace(0,2*np.pi,n_points)
+# #     angles = np.linspace(0,2*np.pi,n_points)
 
-    point_list = []
+# #     point_list = []
 
-    for angle in angles:
-        # circle_point = center_pt + (radius*np.cos(angle)*v1) + (radius*np.sin(angle)*v2)
-        circle_point = center_pt + radius * (np.cos(angle)*v2 + np.sin(angle)*v1)
-        point_list.append(circle_point)
+# #     for angle in angles:
+# #         # circle_point = center_pt + (radius*np.cos(angle)*v1) + (radius*np.sin(angle)*v2)
+# #         circle_point = center_pt + radius * (np.cos(angle)*v2 + np.sin(angle)*v1)
+# #         point_list.append(circle_point)
 
-    return np.array(point_list)
+# #     return np.array(point_list)
 
-def reverse_order_rangelist(a,b):
-    l1 = list(range(-a+1,-b+1))
+# # def reverse_order_rangelist(a,b):
+# #     l1 = list(range(-a+1,-b+1))
 
-    return list(map(abs,l1))
+# #     return list(map(abs,l1))
 
 def segments(curve):
     '''
@@ -93,18 +94,17 @@ def segments(curve):
     '''
     return list(map(LineString, zip(curve.coords[:-1], curve.coords[1:])))
 
-def create_edgeslist(num_vertices,as_np=True):
-    edgelist = []
+# def create_edgeslist(num_vertices,as_np=True):
+#     edgelist = []
 
-    if num_vertices > 0:
-        for i in range(num_vertices-1):
-            edgelist.append([i,i+1])
+#     if num_vertices > 0:
+#         for i in range(num_vertices-1):
+#             edgelist.append([i,i+1])
 
-    if as_np:
-        return np.array(edgelist)
-    else:
-        return edgelist
-
+#     if as_np:
+#         return np.array(edgelist)
+#     else:
+#         return edgelist
 
 def get_raster_val_at_geoXY(x,y,rasterpath):
     runstring = f'gdallocationinfo -valonly -geoloc {rasterpath} {x} {y}'
@@ -113,66 +113,152 @@ def get_raster_val_at_geoXY(x,y,rasterpath):
 
     return float(ret.strip('\n'))
 
-def pymesh_cylinder_for_cityjson(vertices,radius,zero_index=0,num_edges=16,rounding_places=4,custom_attrs=None,tol_for_simplification=None):
-        '''
-            creates a cylinder using pymesh
 
-        '''
+def one_pipe_making(pointlist,diameter,thickness=0.1,extra_safe_percent=0.05,joint_amplification=0.01,segments=32):
 
-        num_vertices = vertices.shape[0]
+    # lists to store geometries
+    inner_geometries = []
+    outer_geometries = []
 
-        edges_list = create_edgeslist(num_vertices)
-
-        wire_network = pymesh.wires.WireNetwork.create_from_data(vertices, edges_list)
-
-        inflator = pymesh.wires.Inflator(wire_network)
-
-        inflator.set_profile(num_edges)
-
-        inflator.inflate(radius, per_vertex_thickness=False)
-
-        mesh = inflator.mesh
-
-        bbox_min, bbox_max = mesh.bbox
-
-        mins = bbox_min.tolist()
-        maxs = bbox_max.tolist()
-
-        points = np.around(mesh.vertices,decimals=rounding_places).tolist()
-
-        max_vert_idx = np.amax(mesh.faces)
-
-        faces = deepcopy(mesh.faces) + zero_index
-        faces = faces.tolist()
-
-        faces = [[face] for face in faces]
-
-        meshdata = {'mins':mins,'maxs':maxs,'points':points,'faces':faces,'zero_ref':max_vert_idx}
-
-        if tol_for_simplification:
-            # simplify based on tolerance
-            mesh,info = pymesh.collapse_short_edges(mesh,tol_for_simplification)
-
-            meshdata['edges_collapsed'] = info["num_edge_collapsed"]
-
-        if custom_attrs:
-            # for key in custom_attrs:
-            #     meshdata[key] = custom_attrs[key]
-            meshdata['attributes'] = custom_attrs
+    number_of_points = pointlist.shape[0]
 
 
-        return meshdata
+    # radius for inner and outer geometries
+    outer_radius = diameter/2
+    inner_radius = outer_radius - thickness
+
+    # a little bit bigger for joints
+    outer_radius_sphere = outer_radius + outer_radius * joint_amplification
+    inner_radius_sphere = inner_radius + inner_radius * joint_amplification
+
+    for i,point in enumerate(pointlist):
+        print(i,point)
+
+        # calculating the joint spheres:
+        # first and last points does not have any joint
+        if (i > 0) and (i < (number_of_points - 1)):
+
+            joint_sphere = pymesh.generate_icosphere(inner_radius_sphere,point,refinement_order=2)
+
+            joint_sphere_outer = pymesh.generate_icosphere(outer_radius_sphere,point,refinement_order=2)
+
+            inner_geometries.append(joint_sphere)
+
+            outer_geometries.append(joint_sphere_outer)
+
+        if i < (number_of_points - 1):
+            # the outer pipe must not have the safe margin
+            p2 = pointlist[i+1,:] # except for the last inner segment, it will always be this point
+
+
+            outer_pipe = pymesh.generate_cylinder(p0=point, p1=p2, r0=outer_radius, r1=outer_radius, num_segments=segments)
+            outer_geometries.append(outer_pipe)
+
+
+            # we neeed to apply some safe margin, to avoid thin triangles
+            if i == 0: # b_a is vector from B to A
+                b_a = point - p2
+                point += b_a * extra_safe_percent
+
+            if i == (number_of_points - 2):
+                a_b = p2 - point
+
+                p2 += a_b * extra_safe_percent
+
+            inner_pipe = pymesh.generate_cylinder(p0=point, p1=p2, r0=inner_radius, r1=inner_radius, num_segments=32)
+
+            inner_geometries.append(inner_pipe)
+
+    # now the  inner and outer trees for combinations
+    print('joining from geometries')
+
+    innerlist = [{'mesh':geometry} for geometry in inner_geometries]
+
+    outerlist = [{'mesh':geometry} for geometry in outer_geometries]
+
+    inner_tree = pymesh.CSGTree({"union": innerlist})
+
+    outer_tree = pymesh.CSGTree({"union": outerlist})
+
+    pipe_tree = pymesh.CSGTree({"difference": [outer_tree, inner_tree]})
+
+    ret_mesh = pipe_tree.mesh
+
+    return ret_mesh
+
+def merge_meshlist(meshlist,print_info=True):
+
+    if print_info:
+        print('joining ',len(meshlist),' meshes')
+
+    mergelist = [{'mesh':geometry} for geometry in meshlist]
+
+    merging_tree = pymesh.CSGTree({"union": mergelist})
+
+    return merging_tree.mesh
 
 
 
-def city_object_dict(faces,attrs_dict):
+# def pymesh_cylinder_for_cityjson(vertices,diameter,thickness=0.1,rounding_places=4,custom_attrs=None):
+#         '''
+#             prepares a pymmesh cylinder to be used to cityjson
+
+#         '''
+
+#         # # num_vertices = vertices.shape[0]
+
+#         # # edges_list = create_edgeslist(num_vertices)
+
+#         # # wire_network = pymesh.wires.WireNetwork.create_from_data(vertices, edges_list)
+
+#         # # inflator = pymesh.wires.Inflator(wire_network)
+
+#         # # inflator.set_profile(num_edges)
+
+#         # # inflator.inflate(radius, per_vertex_thickness=False)
+
+#         mesh = one_pipe_making(vertices,diameter,thickness)
+
+#         bbox_min, bbox_max = mesh.bbox
+
+#         mins = bbox_min.tolist()
+#         maxs = bbox_max.tolist()
+
+#         # points = np.around(mesh.vertices,decimals=rounding_places).tolist()
+
+#         # max_vert_idx = np.amax(mesh.faces)
+
+#         # # faces = deepcopy(mesh.faces) + zero_index
+#         # # faces = faces.tolist()
+
+#         # # faces = [[face] for face in faces]
+
+#         meshdata = {'mins':mins,'maxs':maxs,'points':points,'faces':[],'zero_ref':max_vert_idx}
+
+#         # # if tol_for_simplification:
+#         # #     # simplify based on tolerance
+#         # #     mesh,info = pymesh.collapse_short_edges(mesh,tol_for_simplification)
+
+#         # #     meshdata['edges_collapsed'] = info["num_edge_collapsed"]
+
+#         if custom_attrs:
+#             # for key in custom_attrs:
+#             #     meshdata[key] = custom_attrs[key]
+#             meshdata['attributes'] = custom_attrs
+
+
+#         return meshdata
+
+
+
+def city_object_dict(faces,attrs_dict,lod=1):
     # TODO: swap between MultiSurface/Solid
 
     city_obj = {
                     "geometry": [
                     {
                         "boundaries": [],
-                        "lod": 1,
+                        "lod": lod,
                         "type": "MultiSurface"
                     }
                     ],
@@ -441,8 +527,19 @@ def city_object_dict(faces,attrs_dict):
 # # # #             json.dump(self.base,writer,indent=2)
 
 
+# cjio validation: 
+# cjio our_test_cylinder.json validate --long > test_cylinder_report.txt
+
+
 ##### OUR BIG CLASS:
 class city_json_simple:
+    '''
+        our class to build up a cityjson file
+
+    '''
+
+
+    # "base" is the cityjson skeleton
     base = {
             "type": "CityJSON",
             "version": "1.0",
@@ -452,16 +549,15 @@ class city_json_simple:
             "geographicalExtent": [
             ]}}
 
-# cjio validation: 
-# cjio our_test_cylinder.json validate --long > test_cylinder_report.txt
-
-    mins = []
-    maxs = []
-
-    point_list = []
 
 
-    def __init__(self,cylinderlist,EPSG):
+    # mins = []
+    # maxs = []
+
+    # point_list = []
+
+
+    def __init__(self,meshinfos,cylinderlist,EPSG,rounding_places=4):
 
         # SETTING epsg
         self.base["metadata"]["referenceSystem"] = f"urn:ogc:def:crs:EPSG::{EPSG}"
@@ -471,39 +567,76 @@ class city_json_simple:
 
         total_cylinders = len(cylinderlist)
 
-        for i,cylinder in enumerate(cylinderlist):
+
+
+        t1 = time.time()
+        print('merging all the pipes: ')
+        the_big_mesh = merge_meshlist(cylinderlist)
+        print('merging took ',time.time()-t1,' seconds\n')
+
+
+        # # # getting the actual faces for each mesh
+        faces = the_big_mesh.faces
+
+        # list containing the origin of each face
+        src_mesh_list = the_big_mesh.get_attribute('source').astype(np.int_).tolist()
+
+        # max_mesh_index = max(src_mesh_list)
+        # meshindexlist = list(range(0,max_mesh_index+1))
+
+        # we can swap max index by a range that will stop on len-1
+        meshindexlist = list(range(total_cylinders))
+
+        # the dictionary containing the indexes of faces that belongs to each original mesh:
+        index_dict = {x: [i for i, value in enumerate(src_mesh_list) if value == x] for x in meshindexlist}
+
+
+
+    
+
+
+        # getting the faces infos
+
+
+        bbox_min, bbox_max = the_big_mesh.bbox
+
+        abs_min = bbox_min.tolist()
+        abs_max = bbox_max.tolist()
+
+
+
+         # writing the vertices on cityjson
+        self.base['vertices'] = np.around(the_big_mesh.vertices,decimals=rounding_places).tolist()
+
+
+        for i,cyl_infos in enumerate(meshinfos):
             print('writing cylinder',i,' of ',total_cylinders,' segments')
 
-            name = f't{i}'
+            faceslist = []
 
-            self.base['CityObjects'][name] = city_object_dict(cylinder['faces'],cylinder['attributes'])
+            # recovering the faces for each pipe
+            for faceindex in index_dict[i]:
+                faceslist.append([faces[faceindex].tolist()])
 
-            self.mins.append(cylinder['mins'])
-            self.maxs.append(cylinder['maxs'])
+            name = f'Pipe_{i}'
 
-            self.base['vertices'] += cylinder['points']
+            self.base['CityObjects'][name] = city_object_dict(,cyl_infos)
+
+            # self.mins.append(cylinder['mins'])
+            # self.maxs.append(cylinder['maxs'])
+
+            # self.base['vertices'] += cylinder['points']
 
 
-        abs_max = np.max(np.array(self.maxs),axis=0)
-        abs_min = np.min(np.array(self.mins),axis=0)
+        # abs_max = np.max(np.array(self.maxs),axis=0)
+        # abs_min = np.min(np.array(self.mins),axis=0)
 
         bbox = [*abs_min,*abs_max]
 
         # filling the bounding box:
         self.base['metadata']['geographicalExtent'] = bbox
 
-        # filling the vertices:
-        # self.base['vertices'] = list(map(list,self.point_list))3
 
-
-        
-
-        # for i,point in enumerate(self.point_list[0]):
-        #     self.base['vertices'].append(point)
-
-        # self.base['vertices'] = [[point.tolist()] for point in self.point_list]
-
-        # self.plist = [[point] for point in self.point_list]
 
 
     def dump_to_file(self,outpath):
@@ -553,17 +686,23 @@ rasterpath = os.path.join(os.environ['HOME'],'sanit3Dsdi/tests/test_vrt_dtm.vrt'
 
 as_gdf = gpd.read_file(pipes_filepath)
 
-material_key = 'MATERIAL'
+# material_key = 'MATERIAL'
 
 diameter_key = 'DIAMETRO'
 
-print(as_gdf[diameter_key].unique())
+# situation_key = 'SITUACAO'
+
+interest_attributes = ['MATERIAL','DIAMETRO','SITUACAO']
+
+print(as_gdf['DIAMETRO'].unique())
 
 meshinfos = []
 
+pipes = []
+
 n_entities = as_gdf.shape[0]
 
-zeroindex = 0
+# zeroindex = 0
 
 
 
@@ -587,25 +726,36 @@ with open('cylinder_report.txt','w+') as writer:
                 Z = get_raster_val_at_geoXY(*point,rasterpath) - 2 
                 Z_list.append(Z)
 
-            # as_array = np.concatenate((as_array,np.array(Z_list)[:,-1:]),axis=1)
+            # the XYZ points from the cylinder
             vertices = np.column_stack((as_array,np.array(Z_list)))
 
-            radius = float(as_gdf[diameter_key][i]) / 200 #200 transforms into radius in centimeters
+            diameter = float(as_gdf[diameter_key][i]) / 100 #100 transforms to centimeters
 
-            customattrs = {"diametro":as_gdf[diameter_key][i],'material':as_gdf[material_key][i]}
+            thickness = diameter * 0.025
+
+            # customattrs = {"diametro":as_gdf[diameter_key][i],'material':as_gdf[material_key][i],'situacao':as_gdf[situation_key][i]}
+            customattrs = {}
+            for attr in interest_attributes:
+                customattrs[attr] = as_gdf[attr][i]
 
             try:
-                print('cylinder',i,' of ',n_entities,' with zero index: ',zeroindex)
-                cylinder_meshinfo = pymesh_cylinder_for_cityjson(vertices,radius,zero_index=zeroindex,custom_attrs=customattrs)
+                print('cylinder',i,' of ',n_entities)#,' with zero index: ',zeroindex)
+                # cylinder_meshinfo = pymesh_cylinder_for_cityjson(vertices,diameter,zero_index=zeroindex,custom_attrs=customattrs)
 
-                zeroindex += (cylinder_meshinfo['zero_ref'] + 500 )
+                curr_pipe = one_pipe_making(vertices,diameter,thickness)
+
+                pipes.append(curr_pipe)
+
+                meshinfos.append(customattrs) # only append attributes if the cylinder has been generated
+
+                # zeroindex += (cylinder_meshinfo['zero_ref'] + 500 )
             except Exception as e:
                 writer.write(f'\n{i}')
                 writer.write(feature.wkt)
                 writer.write(str(e))
 
 
-            meshinfos.append(cylinder_meshinfo)
+            
 
             if i > 50:
                 break
@@ -615,7 +765,7 @@ with open('cylinder_report.txt','w+') as writer:
 # "referenceSystem":"urn:ogc:def:crs:EPSG::31984"
 
 
-builder = city_json_simple(meshinfos,31984)
+builder = city_json_simple(meshinfos,pipes,31984)
 
 outpath = os.path.join(os.environ['HOME'],'data/sanit3d_out/pipery01_50.json')
 print(outpath)
