@@ -1,0 +1,13 @@
+# tutorial at:
+
+https://3dcitydb-docs.readthedocs.io/en/latest/webmap/installation-config.html
+
+# then acesssing at:
+
+http://localhost:8000/3dwebclient/index.html 
+
+
+# apparently, at
+[HOME]/3dcitydb-web-map
+
+it works fine

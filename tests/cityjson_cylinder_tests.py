@@ -615,12 +615,18 @@ class city_json_simple:
             faceslist = []
 
             # recovering the faces for each pipe
-            for faceindex in index_dict[i]:
-                faceslist.append([faces[faceindex].tolist()])
+            try:
+                for faceindex in index_dict[i]:
+                    faceslist.append([faces[faceindex].tolist()])
+            except Exception as e:
+                    print(str(e))
+                    print('tried to acess: ',i)
+                    print(len(index_dict))
+
 
             name = f'Pipe_{i}'
 
-            self.base['CityObjects'][name] = city_object_dict(,cyl_infos)
+            self.base['CityObjects'][name] = city_object_dict(faceslist,cyl_infos)
 
             # self.mins.append(cylinder['mins'])
             # self.maxs.append(cylinder['maxs'])
@@ -705,73 +711,91 @@ n_entities = as_gdf.shape[0]
 # zeroindex = 0
 
 
+last_i = -1
+
+feature_count = as_gdf.shape[0]
+
+step = 30
+
 
 
 with open('cylinder_report.txt','w+') as writer:
-    for i,feature in enumerate(as_gdf.geometry):
-        if as_gdf[diameter_key][i] != '':
-            if feature.geom_type == 'LineString':
-                as_array = np.array(feature)
-            else:
-                lines = []
-                for line in feature:
-                    lines.append(np.array(line))
+    for i in range(0,feature_count,step):
+        for i,feature in enumerate(as_gdf.geometry):
+            if i <= last_i:
+                continue
 
-                as_array = np.concatenate(lines,axis=0)
+            if as_gdf[diameter_key][i] != '':
+                if feature.geom_type == 'LineString':
+                    as_array = np.array(feature)
+                else:
+                    lines = []
+                    for line in feature:
+                        lines.append(np.array(line))
 
-
-            Z_list = []
-
-            for point in as_array:
-                Z = get_raster_val_at_geoXY(*point,rasterpath) - 2 
-                Z_list.append(Z)
-
-            # the XYZ points from the cylinder
-            vertices = np.column_stack((as_array,np.array(Z_list)))
-
-            diameter = float(as_gdf[diameter_key][i]) / 100 #100 transforms to centimeters
-
-            thickness = diameter * 0.025
-
-            # customattrs = {"diametro":as_gdf[diameter_key][i],'material':as_gdf[material_key][i],'situacao':as_gdf[situation_key][i]}
-            customattrs = {}
-            for attr in interest_attributes:
-                customattrs[attr] = as_gdf[attr][i]
-
-            try:
-                print('cylinder',i,' of ',n_entities)#,' with zero index: ',zeroindex)
-                # cylinder_meshinfo = pymesh_cylinder_for_cityjson(vertices,diameter,zero_index=zeroindex,custom_attrs=customattrs)
-
-                curr_pipe = one_pipe_making(vertices,diameter,thickness)
-
-                pipes.append(curr_pipe)
-
-                meshinfos.append(customattrs) # only append attributes if the cylinder has been generated
-
-                # zeroindex += (cylinder_meshinfo['zero_ref'] + 500 )
-            except Exception as e:
-                writer.write(f'\n{i}')
-                writer.write(feature.wkt)
-                writer.write(str(e))
+                    as_array = np.concatenate(lines,axis=0)
 
 
-            
+                Z_list = []
 
-            if i > 50:
-                break
+                for point in as_array:
+                    Z = get_raster_val_at_geoXY(*point,rasterpath) - 2 
+                    Z_list.append(Z)
+
+                # the XYZ points from the cylinder
+                vertices = np.column_stack((as_array,np.array(Z_list)))
+
+                diameter = float(as_gdf[diameter_key][i]) / 100 #100 transforms to centimeters
+
+                thickness = diameter * 0.025
+
+                # customattrs = {"diametro":as_gdf[diameter_key][i],'material':as_gdf[material_key][i],'situacao':as_gdf[situation_key][i]}
+                customattrs = {}
+                for attr in interest_attributes:
+                    customattrs[attr] = as_gdf[attr][i]
+
+                try:
+                    print('cylinder',i,' of ',n_entities)#,' with zero index: ',zeroindex)
+                    # cylinder_meshinfo = pymesh_cylinder_for_cityjson(vertices,diameter,zero_index=zeroindex,custom_attrs=customattrs)
+
+                    curr_pipe = one_pipe_making(vertices,diameter,thickness)
+
+                    pipes.append(curr_pipe)
+
+                    meshinfos.append(customattrs) # only append attributes if the cylinder has been generated
+
+                    # zeroindex += (cylinder_meshinfo['zero_ref'] + 500 )
+                except Exception as e:
+                    writer.write(f'\n{i}')
+                    writer.write(feature.wkt)
+                    writer.write(str(e))
 
 
 
-# "referenceSystem":"urn:ogc:def:crs:EPSG::31984"
+
+                
+
+                if i % step == 0:
+                    last_i = i 
+                    break
 
 
-builder = city_json_simple(meshinfos,pipes,31984)
 
-outpath = os.path.join(os.environ['HOME'],'data/sanit3d_out/pipery01_50.json')
-print(outpath)
+        # "referenceSystem":"urn:ogc:def:crs:EPSG::31984"
 
-builder.dump_to_file(outpath)
 
+        builder = city_json_simple(meshinfos,pipes,31984)
+
+        outpath = os.path.join(os.environ['HOME'],f'data/sanit3d_out/downtown_pipes{i}.json')
+        print(outpath)
+
+        builder.dump_to_file(outpath)
+
+        pipes = [] #zeroing first
+        meshinfos = []
+
+        # garbage collection, just for shure
+        del builder
 
 
 
