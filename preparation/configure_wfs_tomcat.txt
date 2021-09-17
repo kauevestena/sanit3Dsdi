@@ -1,0 +1,83 @@
+#!/bin/bash
+
+
+# https://www.digitalocean.com/community/tutorials/install-tomcat-9-ubuntu-1804-pt
+sudo groupadd tomcat
+
+sudo useradd -s /bin/false -g tomcat -d /opt/tomcat tomcat
+
+mkdir tomcat
+
+cd tomcat
+
+curl -O https://mirror.nbtelecom.com.br/apache/tomcat/tomcat-9/v9.0.48/bin/apache-tomcat-9.0.48.tar.gz
+
+# admin123
+# admin123
+
+
+http://localhost:8080/citydb-wfs/wfs
+
+
+# editing WFS xml:
+cd .. && cd .. && sudo gedit opt/tomcat/webapps/citydb-wfs/WEB-INF/config.xml
+
+# restarting tomcat:
+systemctl restart tomcat
+systemctl disable tomcat
+
+# authorizing port
+sudo ufw allow from any to any port 8080 proto tcp
+
+
+#######################################################################################
+                                      DOCKER VERSION                                      
+#######################################################################################
+
+# PULLING DOCKER IMAGE:
+docker pull tumgis/3dcitydb-wfs
+
+sudo docker run --name "citydb-wfs-container" -it -p 127.0.0.1:81:8080/tcp \
+    -e "CITYDB_CONNECTION_TYPE=PostGIS" \
+    -e "CITYDB_CONNECTION_SERVER=localhost" \
+    -e "CITYDB_CONNECTION_PORT=5432" \
+    -e "CITYDB_CONNECTION_USER=postgres" \
+    -e "CITYDB_CONNECTION_PASSWORD=postgres" \
+    -e "CITYDB_CONNECTION_SID=citydb_v4_3" \
+  tumgis/3dcitydb-wfs
+
+#    http://127.0.0.1:81/citydb-wfs/wfs?
+#    http://127.0.0.1:81/
+
+
+sudo ufw allow from any to any port 8090 proto tcp
+
+
+# list of docker containers:
+
+sudo docker container ls -a
+
+# removing docker container 
+sudo docker container stop 2e235fd100e5  
+sudo docker container rm 2e235fd100e5
+
+sudo systemctl restart docker
+
+sudo docker container restart b6f9026f4ba8
+
+# testing:
+http://8080:8080/citydb-wfs/wfs?SERVICE=WFS&REQUEST=GetCapabilities
+
+
+
+# XML linting:
+
+sudo -i
+cd .. && cd .. && cd opt/tomcat/webapps/citydb-wfs/WEB-INF
+xmllint --schema schemas/config/config.xsd config.xml --noout
+
+# xml editing
+sudo -i && cd .. && cd .. && gedit opt/tomcat/webapps/citydb-wfs/WEB-INF/config.xml
+
+# opening folder
+cd .. && cd .. && sudo nautilus opt/tomcat/webapps/citydb-wfs/WEB-INF
