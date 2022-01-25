@@ -1,5 +1,6 @@
+Published at GEOINFO 2021, paper avaliable at: http://mtc-m16c.sid.inpe.br/ibi/8JMKD3MGPDW34P/45U7C7H 
+
 # sanit3Dsdi
-*** UNDER CONSTRUCTION ***
 
 Reṕsitory containing the code for the implementation of a 3D SDI - Spatial Data Infraestructure
 
